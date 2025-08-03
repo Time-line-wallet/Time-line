@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Time-line App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-fade-in {
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+
+        .gradient-bg {
+            background: linear-gradient(135deg, #6B7280, #4B5563);
+        }
+
+        .menu-item:hover {
+            transform: translateY(-4px);
+            transition: all 0.3s ease;
+        }
+
+        .menu-item:active {
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen font-sans">
+    <!-- Auth Container (Login/Signup) -->
+    <div class="auth-container flex items-center justify-center min-h-screen p-4 md:p-8" id="authContainer">
+        <div class="auth-box bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md animate-fade-in">
+            <!-- Login Form -->
+            <div id="loginForm" class="form-container active">
+                <h2 class="auth-title text-3xl font-bold text-center text-gray-800 mb-6">Welcome Back</h2>
+                <div id="loginMessage" class="mb-4"></div>
+                <form id="loginFormElement" class="space-y-4">
+                    <div class="input-group">
+                        <label for="loginEmail" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                        <input type="email" id="loginEmail" required 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all">
+                    </div>
+                    <div class="input-group">
+                        <label for="loginPassword" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                        <input type="password" id="loginPassword" required 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all">
+                    </div>
+                    <button type="submit" class="auth-btn w-full py-3 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-all transform hover:-translate-y-1" id="loginBtn">
+                        Sign In
+                    </button>
+                </form>
+                <div class="switch-form text-center mt-4 text-sm text-gray-600">
+                    Don't have an account? <a href="#" id="showSignup" class="text-indigo-600 font-medium hover:underline">Create one</a>
+                </div>
+            </div>
+
+            <!-- Sign Up Form -->
+            <div id="signupForm" class="form-container hidden">
+                <h2 class="auth-title text-3xl font-bold text-center text-gray-800 mb-6">Get Started</h2>
+                <div id="signupMessage" class="mb-4"></div>
+                <form id="signupFormElement" class="space-y-4">
+                    <div class="input-group">
+                        <label for="signupName" class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                        <input type="text" id="signupName" required 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all">
+                    </div>
+                    <div class="input-group">
+                        <label for="signupEmail" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                        <input type="email" id="signupEmail" required 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all">
+                    </div>
+                    <div class="input-group">
+                        <label for="signupPassword" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                        <input type="password" id="signupPassword" required minlength="6" 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all">
+                    </div>
+                    <div class="input-group">
+                        <label for="confirmPassword" class="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
+                        <input type="password" id="confirmPassword" required minlength="6" 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all">
+                    </div>
+                    <button type="submit" class="auth-btn w-full py-3 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-all transform hover:-translate-y-1" id="signupBtn">
+                        Create Account
+                    </button>
+                </form>
+                <div class="switch-form text-center mt-4 text-sm text-gray-600">
+                    Already have an account? <a href="#" id="showLogin" class="text-indigo-600 font-medium hover:underline">Sign in</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App Container -->
+    <div class="container max-w-md mx-auto bg-white min-h-screen shadow-xl hidden" id="mainApp">
+        <div class="status-bar h-1 bg-gradient-to-r from-indigo-500 to-blue-600"></div>
+        
+        <!-- Dashboard -->
+        <div class="main-content dashboard" id="dashboard">
+            <header class="header bg-gradient-to-r from-indigo-500 to-blue-600 text-white p-6 text-center">
+                <h1 class="text-3xl font-bold">Time-line</h1>
+                <p class="text-sm opacity-90 mt-1">Your Digital Lifestyle Companion</p>
+            </header>
+
+            <nav class="menu p-6">
+                <div class="menu-grid grid grid-cols-2 gap-4">
+                    <button class="menu-item bg-gray-100 rounded-xl p-4 text-center shadow-md hover:bg-indigo-600 hover:text-white transition-all" onclick="handleMenuClick('airtime')">
+                        <div class="menu-icon w-10 h-10 bg-indigo-500 text-white rounded-full flex items-center justify-center mx-auto mb-2">📱</div>
+                        <span class="menu-text text-sm font-medium">Buy Airtime/Data</span>
+                    </button>
+                    
+                    <button class="menu-item bg-gray-100 rounded-xl p-4 text-center shadow-md hover:bg-indigo-600 hover:text-white transition-all" onclick="handleMenuClick('wallet')">
+                        <div class="menu-icon w-10 h-10 bg-indigo-500 text-white rounded-full flex items-center justify-center mx-auto mb-2">💳</div>
+                        <span class="menu-text text-sm font-medium">Wallet</span>
+                    </button>
+                    
+                    <button class="menu-item bg-gray-100 rounded-xl p-4 text-center shadow-md hover:bg-indigo-600 hover:text-white transition-all" onclick="handleMenuClick('survey')">
+                        <div class="menu-icon w-10 h-10 bg-indigo-500 text-white rounded-full flex items-center justify-center mx-auto mb-2">📋</div>
+                        <span class="menu-text text-sm font-medium">Survey/Task</span>
+                    </button>
+                    
+                    <button class="menu-item bg-gray-100 rounded-xl p-4 text-center shadow-md hover:bg-indigo-600 hover:text-white transition-all" onclick="handleMenuClick('support')">
+                        <div class="menu-icon w-10 h-10 bg-indigo-500 text-white rounded-full flex items-center justify-center mx-auto mb-2">🎧</div>
+                        <span class="menu-text text-sm font-medium">Support</span>
+                    </button>
+                    
+                    <button class="menu-item bg-gray-100 rounded-xl p-4 text-center shadow-md hover:bg-indigo-600 hover:text-white transition-all" onclick="handleMenuClick('account')">
+                        <div class="menu-icon w-10 h-10 bg-indigo-500 text-white rounded-full flex items-center justify-center mx-auto mb-2">👤</div>
+                        <span class="menu-text text-sm font-medium">Account</span>
+                    </button>
+                </div>
+            </nav>
+
+            <section class="welcome bg-gradient-to-b from-gray-50 to-white m-6 p-6 rounded-2xl shadow-lg">
+                <h2 class="text-2xl font-semibold text-indigo-600 text-center mb-4">Welcome to Time-line</h2>
+                <p class="text-gray-600 text-center mb-6">
+                    Your all-in-one hub for digital convenience. Manage airtime, data, surveys, and finances effortlessly.
+                    <br>
+                    <span class="text-sm text-yellow-600 font-medium">
+                        ⚠️ Report incomplete transactions after 24 hours to support.
+                    </span>
+                </p>
+                
+                <div class="welcome-features flex justify-around mt-6">
+                    <div class="welcome-feature text-center">
+                        <div class="welcome-feature-icon w-12 h-12 bg-indigo-500 text-white rounded-full flex items-center justify-center mx-auto mb-2">⚡</div>
+                        <div class="welcome-feature-text text-xs font-medium text-gray-600">Instant Top-up</div>
+                    </div>
+                    <div class="welcome-feature text-center">
+                        <div class="welcome-feature-icon w-12 h-12 bg-indigo-500 text-white rounded-full flex items-center justify-center mx-auto mb-2">🔒</div>
+                        <div class="welcome-feature-text text-xs font-medium text-gray-600">Secure Payments</div>
+                    </div>
+                    <div class="welcome-feature text-center">
+                        <div class="welcome-feature-icon w-12 h-12 bg-indigo-500 text-white rounded-full flex items-center justify-center mx-auto mb-2">📊</div>
+                        <div class="welcome-feature-text text-xs font-medium text-gray-600">Track Usage</div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { 
+            getDatabase, 
+            ref, 
+            set, 
+            get 
+        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+        import { 
+            getAuth, 
+            createUserWithEmailAndPassword,
+            signInWithEmailAndPassword,
+            signOut,
+            onAuthStateChanged 
+        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCcTFYAIp1-TA1irU8l5N8iihfnYCGWrHw",
+            authDomain: "and-facebook-ab84c.firebaseapp.com",
+            databaseURL: "https://and-facebook-ab84c-default-rtdb.firebaseio.com",
+            projectId: "and-facebook-ab84c",
+            storageBucket: "and-facebook-ab84c.appspot.com",
+            messagingSenderId: "4885749329",
+            appId: "1:4885749329:web:2d5b0e46519b5dc4c8e270"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const auth = getAuth(app);
+
+        // DOM elements
+        const authContainer = document.getElementById('authContainer');
+        const mainApp = document.getElementById('mainApp');
+        const loginForm = document.getElementById('loginForm');
+        const signupForm = document.getElementById('signupForm');
+        const dashboard = document.getElementById('dashboard');
+        const showSignup = document.getElementById('showSignup');
+        const showLogin = document.getElementById('showLogin');
+        const loginFormElement = document.getElementById('loginFormElement');
+        const signupFormElement = document.getElementById('signupFormElement');
+
+        // Message elements
+        const loginMessage = document.getElementById('loginMessage');
+        const signupMessage = document.getElementById('signupMessage');
+
+        // Form switching
+        showSignup.addEventListener('click', (e) => {
+            e.preventDefault();
+            loginForm.classList.add('hidden');
+            signupForm.classList.remove('hidden');
+            clearMessages();
+        });
+
+        showLogin.addEventListener('click', (e) => {
+            e.preventDefault();
+            signupForm.classList.add('hidden');
+            loginForm.classList.remove('hidden');
+            clearMessages();
+        });
+
+        // Clear messages
+        function clearMessages() {
+            loginMessage.innerHTML = '';
+            signupMessage.innerHTML = '';
+        }
+
+        // Show message
+        function showMessage(element, message, type) {
+            element.innerHTML = `
+                <div class="p-3 rounded-lg text-sm ${type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}">
+                    ${message}
+                </div>
+            `;
+            setTimeout(() => element.innerHTML = '', 5000);
+        }
+
+        // Menu handling
+        window.handleMenuClick = function(section) {
+            const event = window.event;
+            if (event && event.target) {
+                event.target.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    event.target.style.transform = '';
+                }, 150);
+            }
+
+            switch(section) {
+                case 'airtime':
+                    window.location.href = 'airtime.html';
+                    break;
+                case 'wallet':
+                    window.location.href = 'wallet.html';
+                    break;
+                case 'survey':
+                    window.location.href = 'survey.html';
+                    break;
+                case 'support':
+                    window.location.href = 'https://wa.me/2347085968274';
+                    break;
+                case 'account':
+                    window.location.href = 'account.html';
+                    break;
+            }
+        };
+
+        // Sign up
+        signupFormElement.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const name = document.getElementById('signupName').value.trim();
+            const email = document.getElementById('signupEmail').value.trim();
+            const password = document.getElementById('signupPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const signupBtn = document.getElementById('signupBtn');
+
+            if (password !== confirmPassword) {
+                showMessage(signupMessage, 'Passwords do not match', 'error');
+                return;
+            }
+
+            if (password.length < 6) {
+                showMessage(signupMessage, 'Password must be at least 6 characters', 'error');
+                return;
+            }
+
+            signupBtn.disabled = true;
+            signupBtn.textContent = 'Creating Account...';
+
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+
+                await set(ref(db, 'users/' + user.uid), {
+                    name: name,
+                    email: email,
+                    createdAt: new Date().toISOString()
+                });
+
+                showMessage(signupMessage, 'Account created successfully!', 'success');
+                signupFormElement.reset();
+
+                setTimeout(() => {
+                    signupForm.classList.add('hidden');
+                    loginForm.classList.remove('hidden');
+                    clearMessages();
+                }, 2000);
+
+            } catch (error) {
+                showMessage(signupMessage, error.message.replace('Firebase: ', ''), 'error');
+            } finally {
+                signupBtn.disabled = false;
+                signupBtn.textContent = 'Create Account';
+            }
+        });
+
+        // Login
+        loginFormElement.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            const loginBtn = document.getElementById('loginBtn');
+
+            loginBtn.disabled = true;
+            loginBtn.textContent = 'Signing In...';
+
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                showMessage(loginMessage, 'Login successful!', 'success');
+                loginFormElement.reset();
+            } catch (error) {
+                showMessage(loginMessage, 'Invalid email or password', 'error');
+            } finally {
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'Sign In';
+            }
+        });
+
+        // Auth state observer
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                authContainer.classList.add('hidden');
+                mainApp.classList.remove('hidden');
+                dashboard.classList.add('active');
+            } else {
+                authContainer.classList.remove('hidden');
+                mainApp.classList.add('hidden');
+                dashboard.classList.remove('active');
+                loginForm.classList.remove('hidden');
+                signupForm.classList.add('hidden');
+                clearMessages();
+            }
+        });
+    </script>
+</body>
+</html>

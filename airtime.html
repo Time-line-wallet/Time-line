@@ -1,0 +1,1468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>P2P Airtime & Data Marketplace</title>
+    <style>
+        :root {
+            --primary-color: #4a90e2;
+            --primary-dark: #357abd;
+            --secondary-color: #f8f9fa;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --info-color: #17a2b8;
+            --light-gray: #f8f9fa;
+            --medium-gray: #e9ecef;
+            --dark-gray: #495057;
+            --text-primary: #212529;
+            --text-secondary: #6c757d;
+            --border-radius: 12px;
+            --box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: var(--text-primary);
+        }
+
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: white;
+            min-height: 100vh;
+            position: relative;
+            box-shadow: 0 0 30px rgba(0,0,0,0.1);
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: var(--box-shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .back-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 8px;
+            transition: var(--transition);
+        }
+
+        .back-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateX(-2px);
+        }
+
+        .header-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .wallet-info {
+            text-align: right;
+        }
+
+        .wallet-label {
+            font-size: 12px;
+            opacity: 0.8;
+            margin-bottom: 2px;
+        }
+
+        .wallet-balance {
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .wallet-balance:hover {
+            transform: scale(1.05);
+        }
+
+        /* Action Tabs */
+        .action-tabs {
+            display: flex;
+            background: white;
+            border-bottom: 2px solid var(--medium-gray);
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 15px;
+            background: none;
+            border: none;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .tab-btn.active {
+            color: var(--primary-color);
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--primary-color);
+            border-radius: 2px 2px 0 0;
+        }
+
+        .tab-btn:hover:not(.active) {
+            color: var(--primary-dark);
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 20px;
+            background: var(--secondary-color);
+            min-height: calc(100vh - 140px);
+        }
+
+        .section {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: var(--box-shadow);
+            border: 1px solid rgba(74, 144, 226, 0.1);
+            transition: var(--transition);
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(0,0,0,0.1);
+        }
+
+        .card h3 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Sell Form */
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--medium-gray);
+            border-radius: 8px;
+            font-size: 14px;
+            transition: var(--transition);
+            background: white;
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+        }
+
+        .form-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        /* Listing Card */
+        .listing-card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 15px;
+            margin-bottom: 12px;
+            box-shadow: var(--box-shadow);
+            border: 1px solid rgba(74, 144, 226, 0.1);
+            transition: var(--transition);
+        }
+
+        .listing-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .seller-info {
+            flex: 1;
+        }
+
+        .seller-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+
+        .seller-rating {
+            font-size: 12px;
+            color: var(--warning-color);
+            margin-top: 2px;
+        }
+
+        .listing-type {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .type-airtime {
+            background: #e8f5e8;
+            color: #2d5a2d;
+        }
+
+        .type-data {
+            background: #e8f0ff;
+            color: #2d4a7a;
+        }
+
+        .listing-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .detail-item {
+            background: var(--light-gray);
+            padding: 8px;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .detail-label {
+            font-size: 10px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            font-weight: 500;
+        }
+
+        .detail-value {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-top: 2px;
+        }
+
+        .listing-price {
+            text-align: center;
+            margin: 12px 0;
+        }
+
+        .price-amount {
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .price-label {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
+        .listing-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+            flex: 1;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: var(--medium-gray);
+            color: var(--text-primary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--dark-gray);
+            color: white;
+        }
+
+        .btn-success {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .btn-warning {
+            background: var(--warning-color);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* My Orders Section */
+        .order-card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 15px;
+            margin-bottom: 12px;
+            box-shadow: var(--box-shadow);
+            border-left: 4px solid;
+        }
+
+        .order-pending { border-left-color: var(--warning-color); }
+        .order-completed { border-left-color: var(--success-color); }
+        .order-cancelled { border-left-color: var(--danger-color); }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+
+        .order-id {
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-family: monospace;
+        }
+
+        .order-status {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-pending {
+            background: rgba(255, 193, 7, 0.1);
+            color: #856404;
+        }
+
+        .status-completed {
+            background: rgba(40, 167, 69, 0.1);
+            color: var(--success-color);
+        }
+
+        .status-cancelled {
+            background: rgba(220, 53, 69, 0.1);
+            color: var(--danger-color);
+        }
+
+        /* No items message */
+        .no-items {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-secondary);
+        }
+
+        .no-items-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-secondary);
+        }
+
+        .spinner {
+            width: 30px;
+            height: 30px;
+            border: 3px solid var(--medium-gray);
+            border-top: 3px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Toast Notifications */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            z-index: 1000;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            max-width: 300px;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast.success { background: var(--success-color); }
+        .toast.error { background: var(--danger-color); }
+        .toast.warning { background: var(--warning-color); }
+        .toast.info { background: var(--info-color); }
+
+        /* Responsive */
+        @media (max-width: 400px) {
+            .container {
+                max-width: 100%;
+                margin: 0;
+            }
+
+            .form-row {
+                flex-direction: column;
+            }
+
+            .listing-details {
+                grid-template-columns: 1fr;
+            }
+
+            .main-content {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-left">
+                <button class="back-btn" onclick="goBack()" aria-label="Go back">←</button>
+                <h1 class="header-title">🏪 P2P Marketplace</h1>
+            </div>
+            <div class="wallet-info" onclick="goToWallet()">
+                <div class="wallet-label">Wallet Balance</div>
+                <div class="wallet-balance" id="walletBalance">₦0.00</div>
+            </div>
+        </header>
+
+        <!-- Action Tabs -->
+        <div class="action-tabs">
+            <button class="tab-btn active" onclick="switchTab('browse')" id="browseTab">
+                🛒 Browse & Buy
+            </button>
+            <button class="tab-btn" onclick="switchTab('sell')" id="sellTab">
+                💰 Sell Items
+            </button>
+            <button class="tab-btn" onclick="switchTab('orders')" id="ordersTab">
+                📋 My Orders
+            </button>
+        </div>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Browse Section -->
+            <section class="section active" id="browseSection">
+                <div class="card">
+                    <h3>🛒 Available Items</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <select class="form-select" id="filterType" onchange="filterListings()">
+                                <option value="">All Types</option>
+                                <option value="airtime">Airtime</option>
+                                <option value="data">Data</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <select class="form-select" id="filterNetwork" onchange="filterListings()">
+                                <option value="">All Networks</option>
+                                <option value="mtn">MTN</option>
+                                <option value="glo">Glo</option>
+                                <option value="airtel">Airtel</option>
+                                <option value="9mobile">9Mobile</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="listingsContainer">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        Loading available items...
+                    </div>
+                </div>
+            </section>
+
+            <!-- Sell Section -->
+            <section class="section" id="sellSection">
+                <div class="card">
+                    <h3>💰 Sell Your Airtime/Data</h3>
+                    <form id="sellForm">
+                        <div class="form-group">
+                            <label class="form-label">What are you selling?</label>
+                            <select class="form-select" id="sellType" required>
+                                <option value="">Select...</option>
+                                <option value="airtime">Airtime</option>
+                                <option value="data">Data Bundle</option>
+                            </select>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Network</label>
+                                <select class="form-select" id="sellNetwork" required>
+                                    <option value="">Select...</option>
+                                    <option value="mtn">MTN</option>
+                                    <option value="glo">Glo</option>
+                                    <option value="airtel">Airtel</option>
+                                    <option value="9mobile">9Mobile</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Amount/Size</label>
+                                <input type="text" class="form-input" id="sellAmount" placeholder="e.g., ₦500 or 2GB" required>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Your Price (₦)</label>
+                                <input type="number" class="form-input" id="sellPrice" placeholder="0" required min="50">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Available Quantity</label>
+                                <input type="number" class="form-input" id="sellQuantity" placeholder="1" required min="1" value="1">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Description (Optional)</label>
+                            <input type="text" class="form-input" id="sellDescription" placeholder="Any additional details...">
+                        </div>
+
+                        <div style="background: var(--light-gray); padding: 10px; border-radius: 6px; margin: 15px 0; font-size: 12px;">
+                            <strong>📝 How it works:</strong><br>
+                            1. Post your item for sale<br>
+                            2. Buyer places order & pays to escrow (including 5% service fee)<br>
+                            3. You share/transfer from your phone<br>
+                            4. Buyer confirms receipt<br>
+                            5. Full payment released to you
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" style="width: 100%;">
+                            📤 Post for Sale
+                        </button>
+                    </form>
+                </div>
+
+                <!-- My Listings -->
+                <div class="card">
+                    <h3>📦 My Listings</h3>
+                    <div id="myListings">
+                        <div class="loading">
+                            <div class="spinner"></div>
+                            Loading your listings...
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Orders Section -->
+            <section class="section" id="ordersSection">
+                <div class="card">
+                    <h3>📋 My Purchase Orders</h3>
+                    <div id="myOrders">
+                        <div class="loading">
+                            <div class="spinner"></div>
+                            Loading your orders...
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>💼 Sales Orders</h3>
+                    <div id="mySales">
+                        <div class="loading">
+                            <div class="spinner"></div>
+                            Loading your sales...
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+        import { 
+            getDatabase, 
+            ref, 
+            get,
+            set,
+            push,
+            update,
+            query,
+            orderByChild,
+            limitToLast,
+            onValue,
+            serverTimestamp
+        } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+        import { 
+            getAuth, 
+            onAuthStateChanged 
+        } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCcTFYAIp1-TA1irU8l5N8iihfnYCGWrHw",
+            authDomain: "and-facebook-ab84c.firebaseapp.com",
+            databaseURL: "https://and-facebook-ab84c-default-rtdb.firebaseio.com",
+            projectId: "and-facebook-ab84c",
+            storageBucket: "and-facebook-ab84c.appspot.com",
+            messagingSenderId: "4885749329",
+            appId: "1:4885749329:web:2d5b0e46519b5dc4c8e270"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const auth = getAuth(app);
+
+        // Global variables
+        let currentUser = null;
+        let walletData = {};
+        let allListings = [];
+        let myListings = [];
+        let myOrders = [];
+        let mySales = [];
+        const serviceFeeRate = 0.05; // 5% service fee
+
+        // Utility Functions
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+
+            setTimeout(() => toast.classList.add('show'), 100);
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => document.body.removeChild(toast), 300);
+            }, 4000);
+        }
+
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('en-NG', {
+                style: 'currency',
+                currency: 'NGN'
+            }).format(amount);
+        }
+
+        function formatDate(timestamp) {
+            return new Date(timestamp).toLocaleDateString('en-NG', {
+                day: 'numeric',
+                month: 'short',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        function generateId() {
+            return 'ID' + Date.now() + Math.random().toString(36).substr(2, 5).toUpperCase();
+        }
+
+        // Navigation Functions
+        window.goBack = function() {
+            window.location.href = 'index.html';
+        };
+
+        window.goToWallet = function() {
+            window.location.href = 'wallet.html';
+        };
+
+        // Tab Switching
+        window.switchTab = function(tab) {
+            // Update tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(tab + 'Tab').classList.add('active');
+
+            // Update sections
+            document.querySelectorAll('.section').forEach(section => section.classList.remove('active'));
+            document.getElementById(tab + 'Section').classList.add('active');
+
+            // Load data for the selected tab
+            if (tab === 'browse') {
+                loadMarketplaceListings();
+            } else if (tab === 'sell') {
+                loadMyListings();
+            } else if (tab === 'orders') {
+                loadMyOrders();
+                loadMySales();
+            }
+        };
+
+        // Load Wallet Data
+        async function loadWalletData(userId) {
+            try {
+                const walletRef = ref(db, `wallets/${userId}`);
+                const snapshot = await get(walletRef);
+
+                if (snapshot.exists()) {
+                    walletData = snapshot.val();
+                } else {
+                    walletData = { balance: 0 };
+                    await set(walletRef, walletData);
+                }
+
+                document.getElementById('walletBalance').textContent = formatCurrency(walletData.balance || 0);
+            } catch (error) {
+                console.error('Error loading wallet data:', error);
+                showToast('Error loading wallet data', 'error');
+            }
+        }
+
+        // Sell Form Submission
+        document.getElementById('sellForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const formData = {
+                type: document.getElementById('sellType').value,
+                network: document.getElementById('sellNetwork').value,
+                amount: document.getElementById('sellAmount').value.trim(),
+                price: parseFloat(document.getElementById('sellPrice').value),
+                quantity: parseInt(document.getElementById('sellQuantity').value),
+                description: document.getElementById('sellDescription').value.trim()
+            };
+
+            if (formData.price < 50) {
+                showToast('Minimum price is ₦50', 'error');
+                return;
+            }
+
+            try {
+                const listingId = generateId();
+                const listingData = {
+                    id: listingId,
+                    ...formData,
+                    sellerId: currentUser.uid,
+                    sellerName: currentUser.displayName || currentUser.email.split('@')[0],
+                    sellerEmail: currentUser.email,
+                    status: 'active',
+                    createdAt: Date.now(),
+                    totalSold: 0,
+                    averageRating: 0
+                };
+
+                await set(ref(db, `marketplace/${listingId}`), listingData);
+
+                // Reset form
+                document.getElementById('sellForm').reset();
+                showToast('Item posted successfully!', 'success');
+
+                // Refresh my listings
+                loadMyListings();
+
+            } catch (error) {
+                console.error('Error posting item:', error);
+                showToast('Error posting item. Please try again.', 'error');
+            }
+        });
+
+        // Load Marketplace Listings
+        async function loadMarketplaceListings() {
+            try {
+                const listingsRef = ref(db, 'marketplace');
+                const snapshot = await get(listingsRef);
+
+                allListings = [];
+                if (snapshot.exists()) {
+                    snapshot.forEach(child => {
+                        const listing = { id: child.key, ...child.val() };
+                        if (listing.status === 'active' && listing.quantity > 0 && listing.sellerId !== currentUser.uid) {
+                            allListings.push(listing);
+                        }
+                    });
+                }
+
+                // Sort by created date (newest first)
+                allListings.sort((a, b) => b.createdAt - a.createdAt);
+                renderListings(allListings);
+
+            } catch (error) {
+                console.error('Error loading listings:', error);
+                showToast('Error loading marketplace', 'error');
+            }
+        }
+
+        // Filter Listings
+        window.filterListings = function() {
+            const typeFilter = document.getElementById('filterType').value;
+            const networkFilter = document.getElementById('filterNetwork').value;
+
+            let filtered = allListings;
+
+            if (typeFilter) {
+                filtered = filtered.filter(listing => listing.type === typeFilter);
+            }
+
+            if (networkFilter) {
+                filtered = filtered.filter(listing => listing.network === networkFilter);
+            }
+
+            renderListings(filtered);
+        };
+
+        // Render Listings
+        function renderListings(listings) {
+            const container = document.getElementById('listingsContainer');
+
+            if (listings.length === 0) {
+                container.innerHTML = `
+                    <div class="no-items">
+                        <div class="no-items-icon">🛒</div>
+                        <h3>No items available</h3>
+                        <p>Check back later for new listings!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = listings.map(listing => {
+                const totalPrice = listing.price * (1 + serviceFeeRate);
+                return `
+                <div class="listing-card">
+                    <div class="listing-header">
+                        <div class="seller-info">
+                            <div class="seller-name">👤 ${listing.sellerName}</div>
+                            <div class="seller-rating">⭐ ${listing.averageRating.toFixed(1)} (${listing.totalSold} sold)</div>
+                        </div>
+                        <div class="listing-type type-${listing.type}">
+                            ${listing.type === 'airtime' ? '📞 Airtime' : '📶 Data'}
+                        </div>
+                    </div>
+
+                    <div class="listing-details">
+                        <div class="detail-item">
+                            <div class="detail-label">Network</div>
+                            <div class="detail-value">${listing.network.toUpperCase()}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Amount</div>
+                            <div class="detail-value">${listing.amount}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Available</div>
+                            <div class="detail-value">${listing.quantity}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Posted</div>
+                            <div class="detail-value">${formatDate(listing.createdAt).split(',')[0]}</div>
+                        </div>
+                    </div>
+
+                    ${listing.description ? `<div style="font-size: 12px; color: var(--text-secondary); margin: 10px 0; font-style: italic;">"${listing.description}"</div>` : ''}
+
+                    <div class="listing-price">
+                        <div class="price-amount">${formatCurrency(totalPrice)}</div>
+                        <div class="price-label">Total (incl. 5% service fee)</div>
+                    </div>
+
+                    <div class="listing-actions">
+                        <button class="btn btn-primary" onclick="buyItem('${listing.id}')">
+                            🛒 Buy Now
+                        </button>
+                    </div>
+                </div>
+            `}).join('');
+        }
+
+        // Buy Item Function
+        window.buyItem = async function(listingId) {
+            const listing = allListings.find(l => l.id === listingId);
+            if (!listing) return;
+
+            const totalPrice = listing.price * (1 + serviceFeeRate);
+
+            if ((walletData.balance || 0) < totalPrice) {
+                showToast('Insufficient wallet balance', 'error');
+                return;
+            }
+
+            const confirmed = confirm(`Buy ${listing.amount} ${listing.type} from ${listing.network.toUpperCase()} for ${formatCurrency(totalPrice)} (includes 5% service fee)?`);
+            if (!confirmed) return;
+
+            try {
+                const orderId = generateId();
+                const orderData = {
+                    id: orderId,
+                    listingId: listingId,
+                    buyerId: currentUser.uid,
+                    buyerName: currentUser.displayName || currentUser.email.split('@')[0],
+                    buyerEmail: currentUser.email,
+                    sellerId: listing.sellerId,
+                    sellerName: listing.sellerName,
+                    sellerEmail: listing.sellerEmail,
+                    type: listing.type,
+                    network: listing.network,
+                    amount: listing.amount,
+                    basePrice: listing.price,
+                    serviceFee: listing.price * serviceFeeRate,
+                    totalPrice: totalPrice,
+                    status: 'pending_transfer',
+                    createdAt: Date.now(),
+                    buyerPhone: prompt('Enter your phone number to receive the ' + listing.type + ':') || ''
+                };
+
+                if (!orderData.buyerPhone) {
+                    showToast('Phone number is required', 'error');
+                    return;
+                }
+
+                // Hold money in escrow (deduct from buyer's wallet)
+                const newBuyerBalance = (walletData.balance || 0) - totalPrice;
+                await set(ref(db, `wallets/${currentUser.uid}/balance`), newBuyerBalance);
+
+                // Create order
+                await set(ref(db, `orders/${orderId}`), orderData);
+
+                // Update listing quantity
+                await set(ref(db, `marketplace/${listingId}/quantity`), listing.quantity - 1);
+                if (listing.quantity - 1 === 0) {
+                    await set(ref(db, `marketplace/${listingId}/status`), 'sold_out');
+                }
+
+                // Add to buyer's wallet transaction history
+                await set(ref(db, `transactions/${currentUser.uid}/${orderId}`), {
+                    id: orderId,
+                    type: 'purchase_escrow',
+                    amount: totalPrice,
+                    serviceFee: orderData.serviceFee,
+                    description: `Escrow payment for ${listing.type} - ${listing.amount}`,
+                    status: 'pending',
+                    timestamp: Date.now()
+                });
+
+                showToast('Order placed! Seller will transfer shortly. You will be notified to confirm receipt.', 'success');
+                loadMarketplaceListings();
+
+            } catch (error) {
+                console.error('Error creating order:', error);
+                showToast('Error placing order. Please try again.', 'error');
+            }
+        };
+
+        // Load My Listings
+        async function loadMyListings() {
+            try {
+                const listingsRef = ref(db, 'marketplace');
+                const snapshot = await get(listingsRef);
+
+                myListings = [];
+                if (snapshot.exists()) {
+                    snapshot.forEach(child => {
+                        const listing = { id: child.key, ...child.val() };
+                        if (listing.sellerId === currentUser.uid) {
+                            myListings.push(listing);
+                        }
+                    });
+                }
+
+                renderMyListings();
+
+            } catch (error) {
+                console.error('Error loading my listings:', error);
+            }
+        }
+
+        // Render My Listings
+        function renderMyListings() {
+            const container = document.getElementById('myListings');
+
+            if (myListings.length === 0) {
+                container.innerHTML = `
+                    <div class="no-items">
+                        <div class="no-items-icon">📦</div>
+                        <h3>No listings yet</h3>
+                        <p>Post your first item above!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = myListings.map(listing => `
+                <div class="listing-card">
+                    <div class="listing-header">
+                        <div class="seller-info">
+                            <div class="seller-name">${listing.type === 'airtime' ? '📞' : '📶'} ${listing.amount}</div>
+                            <div class="seller-rating">${listing.network.toUpperCase()} • ${formatDate(listing.createdAt)}</div>
+                        </div>
+                        <div class="listing-type ${listing.status === 'active' ? 'type-data' : 'type-airtime'}">
+                            ${listing.status === 'active' ? '✅ Active' : listing.status === 'sold_out' ? '🔴 Sold Out' : '⏸️ Inactive'}
+                        </div>
+                    </div>
+
+                    <div class="listing-details">
+                        <div class="detail-item">
+                            <div class="detail-label">Price</div>
+                            <div class="detail-value">${formatCurrency(listing.price)}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Available</div>
+                            <div class="detail-value">${listing.quantity}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Total Sold</div>
+                            <div class="detail-value">${listing.totalSold || 0}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Earnings</div>
+                            <div class="detail-value">${formatCurrency((listing.totalSold || 0) * listing.price)}</div>
+                        </div>
+                    </div>
+
+                    <div class="listing-actions">
+                        ${listing.status === 'active' ? `
+                            <button class="btn btn-secondary" onclick="editListing('${listing.id}')">✏️ Edit</button>
+                            <button class="btn btn-danger" onclick="deleteListing('${listing.id}')">🗑️ Delete</button>
+                        ` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Delete Listing
+        window.deleteListing = async function(listingId) {
+            const confirmed = confirm('Are you sure you want to delete this listing?');
+            if (!confirmed) return;
+
+            try {
+                await set(ref(db, `marketplace/${listingId}`), null);
+                showToast('Listing deleted successfully', 'success');
+                loadMyListings();
+            } catch (error) {
+                console.error('Error deleting listing:', error);
+                showToast('Error deleting listing', 'error');
+            }
+        };
+
+        // Load My Orders (as buyer)
+        async function loadMyOrders() {
+            try {
+                const ordersRef = ref(db, 'orders');
+                const snapshot = await get(ordersRef);
+
+                myOrders = [];
+                if (snapshot.exists()) {
+                    snapshot.forEach(child => {
+                        const order = { id: child.key, ...child.val() };
+                        if (order.buyerId === currentUser.uid) {
+                            myOrders.push(order);
+                        }
+                    });
+                }
+
+                myOrders.sort((a, b) => b.createdAt - a.createdAt);
+                renderMyOrders();
+
+            } catch (error) {
+                console.error('Error loading orders:', error);
+            }
+        }
+
+        // Render My Orders
+        function renderMyOrders() {
+            const container = document.getElementById('myOrders');
+
+            if (myOrders.length === 0) {
+                container.innerHTML = `
+                    <div class="no-items">
+                        <div class="no-items-icon">📋</div>
+                        <h3>No orders yet</h3>
+                        <p>Your purchase orders will appear here</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = myOrders.map(order => `
+                <div class="order-card order-${order.status.includes('completed') ? 'completed' : order.status.includes('cancelled') ? 'cancelled' : 'pending'}">
+                    <div class="order-header">
+                        <div>
+                            <div class="order-id">Order: ${order.id}</div>
+                            <div style="font-weight: 600; margin-top: 5px;">
+                                ${order.type === 'airtime' ? '📞' : '📶'} ${order.amount} - ${order.network.toUpperCase()}
+                            </div>
+                            <div style="font-size: 12px; color: var(--text-secondary); margin-top: 2px;">
+                                From: ${order.sellerName} • ${formatDate(order.createdAt)}
+                            </div>
+                        </div>
+                        <div>
+                            <div class="order-status status-${order.status.includes('completed') ? 'completed' : order.status.includes('cancelled') ? 'cancelled' : 'pending'}">
+                                ${getOrderStatusText(order.status)}
+                            </div>
+                            <div style="font-weight: 700; color: var(--primary-color); margin-top: 5px;">
+                                ${formatCurrency(order.totalPrice)} <span style="font-size: 10px;">(incl. 5% fee)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    ${order.status === 'pending_transfer' ? `
+                        <div style="background: var(--warning-color); color: white; padding: 10px; border-radius: 6px; margin-top: 10px; font-size: 12px;">
+                            ⏳ Waiting for seller to transfer ${order.type} to ${order.buyerPhone}
+                        </div>
+                    ` : ''}
+
+                    ${order.status === 'transferred' ? `
+                        <div style="background: var(--info-color); color: white; padding: 10px; border-radius: 6px; margin-top: 10px; font-size: 12px;">
+                            📱 Seller has transferred! Check your phone and confirm receipt below.
+                        </div>
+                        <div style="margin-top: 10px; display: flex; gap: 8px;">
+                            <button class="btn btn-success" onclick="confirmReceipt('${order.id}')">
+                                ✅ Confirm Received
+                            </button>
+                            <button class="btn btn-danger" onclick="reportIssue('${order.id}')">
+                                ❌ Report Issue
+                            </button>
+                        </div>
+                    ` : ''}
+
+                    ${order.status === 'completed' ? `
+                        <div style="background: var(--success-color); color: white; padding: 10px; border-radius: 6px; margin-top: 10px; font-size: 12px;">
+                            ✅ Order completed! Payment released to seller.
+                        </div>
+                    ` : ''}
+                </div>
+            `).join('');
+        }
+
+        // Load My Sales (as seller)
+        async function loadMySales() {
+            try {
+                const ordersRef = ref(db, 'orders');
+                const snapshot = await get(ordersRef);
+
+                mySales = [];
+                if (snapshot.exists()) {
+                    snapshot.forEach(child => {
+                        const order = { id: child.key, ...child.val() };
+                        if (order.sellerId === currentUser.uid) {
+                            mySales.push(order);
+                        }
+                    });
+                }
+
+                mySales.sort((a, b) => b.createdAt - a.createdAt);
+                renderMySales();
+
+            } catch (error) {
+                console.error('Error loading sales:', error);
+            }
+        }
+
+        // Render My Sales
+        function renderMySales() {
+            const container = document.getElementById('mySales');
+
+            if (mySales.length === 0) {
+                container.innerHTML = `
+                    <div class="no-items">
+                        <div class="no-items-icon">💼</div>
+                        <h3>No sales yet</h3>
+                        <p>Your sales orders will appear here</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = mySales.map(order => `
+                <div class="order-card order-${order.status.includes('completed') ? 'completed' : order.status.includes('cancelled') ? 'cancelled' : 'pending'}">
+                    <div class="order-header">
+                        <div>
+                            <div class="order-id">Sale: ${order.id}</div>
+                            <div style="font-weight: 600; margin-top: 5px;">
+                                ${order.type === 'airtime' ? '📞' : '📶'} ${order.amount} - ${order.network.toUpperCase()}
+                            </div>
+                            <div style="font-size: 12px; color: var(--text-secondary); margin-top: 2px;">
+                                To: ${order.buyerName} (${order.buyerPhone}) • ${formatDate(order.createdAt)}
+                            </div>
+                        </div>
+                        <div>
+                            <div class="order-status status-${order.status.includes('completed') ? 'completed' : order.status.includes('cancelled') ? 'cancelled' : 'pending'}">
+                                ${getOrderStatusText(order.status)}
+                            </div>
+                            <div style="font-weight: 700; color: var(--success-color); margin-top: 5px;">
+                                ${formatCurrency(order.basePrice)}
+                            </div>
+                        </div>
+                    </div>
+
+                    ${order.status === 'pending_transfer' ? `
+                        <div style="background: var(--primary-color); color: white; padding: 10px; border-radius: 6px; margin-top: 10px; font-size: 12px;">
+                            📱 Transfer ${order.amount} ${order.type} to ${order.buyerPhone}, then mark as transferred
+                        </div>
+                        <div style="margin-top: 10px;">
+                            <button class="btn btn-success" onclick="markTransferred('${order.id}')" style="width: 100%;">
+                                ✅ Mark as Transferred
+                            </button>
+                        </div>
+                    ` : ''}
+
+                    ${order.status === 'transferred' ? `
+                        <div style="background: var(--warning-color); color: white; padding: 10px; border-radius: 6px; margin-top: 10px; font-size: 12px;">
+                            ⏳ Waiting for buyer to confirm receipt
+                        </div>
+                    ` : ''}
+
+                    ${order.status === 'completed' ? `
+                        <div style="background: var(--success-color); color: white; padding: 10px; border-radius: 6px; margin-top: 10px; font-size: 12px;">
+                            ✅ Sale completed! Payment received in your wallet.
+                        </div>
+                    ` : ''}
+                </div>
+            `).join('');
+        }
+
+        // Mark as Transferred
+        window.markTransferred = async function(orderId) {
+            const confirmed = confirm('Have you successfully transferred the airtime/data to the buyer?');
+            if (!confirmed) return;
+
+            try {
+                await update(ref(db, `orders/${orderId}`), {
+                    status: 'transferred',
+                    transferredAt: Date.now()
+                });
+
+                showToast('Marked as transferred! Buyer will be notified to confirm receipt.', 'success');
+                loadMySales();
+
+            } catch (error) {
+                console.error('Error updating order:', error);
+                showToast('Error updating order', 'error');
+            }
+        };
+
+        // Confirm Receipt
+        window.confirmReceipt = async function(orderId) {
+            const confirmed = confirm('Have you received the airtime/data successfully?');
+            if (!confirmed) return;
+
+            try {
+                const order = myOrders.find(o => o.id === orderId);
+                if (!order) return;
+
+                // Complete the order
+                await update(ref(db, `orders/${orderId}`), {
+                    status: 'completed',
+                    completedAt: Date.now()
+                });
+
+                // Release full payment to seller
+                const sellerPayment = order.basePrice;
+
+                // Get seller's current balance
+                const sellerWalletRef = ref(db, `wallets/${order.sellerId}`);
+                const sellerSnapshot = await get(sellerWalletRef);
+                const sellerWallet = sellerSnapshot.val() || { balance: 0 };
+
+                // Update seller's balance
+                await set(ref(db, `wallets/${order.sellerId}/balance`), (sellerWallet.balance || 0) + sellerPayment);
+
+                // Add to seller's transaction history
+                await set(ref(db, `transactions/${order.sellerId}/${orderId}`), {
+                    id: orderId,
+                    type: 'sale_completed',
+                    amount: sellerPayment,
+                    description: `Sale payment for ${order.type} - ${order.amount}`,
+                    status: 'completed',
+                    timestamp: Date.now()
+                });
+
+                // Update buyer's transaction status
+                await update(ref(db, `transactions/${currentUser.uid}/${orderId}`), {
+                    status: 'completed'
+                });
+
+                // Update listing stats
+                const listingRef = ref(db, `marketplace/${order.listingId}`);
+                const listingSnapshot = await get(listingRef);
+                if (listingSnapshot.exists()) {
+                    const listing = listingSnapshot.val();
+                    await update(listingRef, {
+                        totalSold: (listing.totalSold || 0) + 1
+                    });
+                }
+
+                showToast('Receipt confirmed! Payment released to seller.', 'success');
+                loadMyOrders();
+
+            } catch (error) {
+                console.error('Error confirming receipt:', error);
+                showToast('Error confirming receipt', 'error');
+            }
+        };
+
+        // Report Issue
+        window.reportIssue = async function(orderId) {
+            const issue = prompt('Describe the issue:');
+            if (!issue) return;
+
+            try {
+                await update(ref(db, `orders/${orderId}`), {
+                    status: 'disputed',
+                    issue: issue,
+                    disputedAt: Date.now()
+                });
+
+                showToast('Issue reported. Admin will review and resolve.', 'info');
+                loadMyOrders();
+
+            } catch (error) {
+                console.error('Error reporting issue:', error);
+                showToast('Error reporting issue', 'error');
+            }
+        };
+
+        // Get Order Status Text
+        function getOrderStatusText(status) {
+            const statusMap = {
+                'pending_transfer': 'Pending Transfer',
+                'transferred': 'Awaiting Confirmation',
+                'completed': 'Completed',
+                'disputed': 'Under Review',
+                'cancelled': 'Cancelled'
+            };
+            return statusMap[status] || status;
+        }
+
+        // Setup Real-time Listeners
+        function setupWalletListener(userId) {
+            const walletRef = ref(db, `wallets/${userId}`);
+            onValue(walletRef, (snapshot) => {
+                if (snapshot.exists()) {
+                    walletData = snapshot.val();
+                    document.getElementById('walletBalance').textContent = formatCurrency(walletData.balance || 0);
+                }
+            });
+        }
+
+        // Initialize Application
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUser = user;
+
+                try {
+                    // Load wallet data
+                    await loadWalletData(user.uid);
+
+                    // Load initial data
+                    await loadMarketplaceListings();
+
+                    // Setup real-time listeners
+                    setupWalletListener(user.uid);
+
+                } catch (error) {
+                    console.error('Error initializing app:', error);
+                    showToast('Error loading application', 'error');
+                }
+            } else {
+                // User not authenticated - redirect to login
+                window.location.href = 'index.html';
+            }
+        });
+
+        console.log('✅ P2P Marketplace loaded successfully');
+    </script>
+</body>
+</html>

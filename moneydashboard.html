@@ -1,0 +1,1921 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Transaction Management</title>
+    <style>
+        :root {
+            --primary-color: #4a90e2;
+            --primary-dark: #357abd;
+            --secondary-color: #667eea;
+            --accent-color: #764ba2;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+            --info-color: #17a2b8;
+            --light-gray: #f8f9fa;
+            --medium-gray: #e9ecef;
+            --dark-gray: #6c757d;
+            --text-primary: #333;
+            --text-secondary: #666;
+            --border-radius: 12px;
+            --box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, var(--secondary-color) 0%, var(--accent-color) 100%);
+            min-height: 100vh;
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            min-height: 100vh;
+            box-shadow: var(--box-shadow);
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 16px;
+        }
+
+        /* Stats Cards */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 30px;
+            background: var(--light-gray);
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: var(--border-radius);
+            text-align: center;
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-icon {
+            font-size: 36px;
+            margin-bottom: 15px;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .stat-pending { color: var(--warning-color); }
+        .stat-approved { color: var(--success-color); }
+        .stat-rejected { color: var(--danger-color); }
+        .stat-total { color: var(--info-color); }
+
+        /* Search and Filters */
+        .search-filters {
+            padding: 20px 30px;
+            border-bottom: 1px solid var(--medium-gray);
+            background: white;
+        }
+
+        .search-section {
+            margin-bottom: 20px;
+        }
+
+        .search-input {
+            width: 100%;
+            max-width: 500px;
+            padding: 12px 20px;
+            border: 2px solid var(--medium-gray);
+            border-radius: 8px;
+            font-size: 16px;
+            background: white;
+            transition: var(--transition);
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+        }
+
+        .search-input::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .filters {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .filter-label {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .filter-select {
+            padding: 8px 12px;
+            border: 2px solid var(--medium-gray);
+            border-radius: 6px;
+            background: white;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .refresh-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: var(--transition);
+            margin-left: auto;
+        }
+
+        .refresh-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        .clear-search-btn {
+            background: var(--dark-gray);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: var(--transition);
+            margin-left: 10px;
+        }
+
+        .clear-search-btn:hover {
+            background: #5a6268;
+        }
+
+        /* Search Results Info */
+        .search-info {
+            padding: 10px 30px;
+            background: var(--light-gray);
+            border-bottom: 1px solid var(--medium-gray);
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .search-highlight {
+            background: #fff3cd;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+
+        /* Transactions Table */
+        .transactions-container {
+            padding: 30px;
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--text-primary);
+        }
+
+        .transactions-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--box-shadow);
+        }
+
+        .transactions-table th,
+        .transactions-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--medium-gray);
+        }
+
+        .transactions-table th {
+            background: var(--light-gray);
+            font-weight: 600;
+            color: var(--text-primary);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .transactions-table tr:hover {
+            background: var(--light-gray);
+        }
+
+        .user-info {
+            cursor: pointer;
+            transition: var(--transition);
+            padding: 8px;
+            border-radius: 6px;
+        }
+
+        .user-info:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: scale(1.02);
+        }
+
+        .user-name {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .user-email {
+            font-size: 12px;
+            opacity: 0.8;
+            margin-top: 2px;
+        }
+
+        .transaction-type {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .type-deposit {
+            background: rgba(40, 167, 69, 0.2);
+            color: var(--success-color);
+        }
+
+        .type-withdrawal {
+            background: rgba(220, 53, 69, 0.2);
+            color: var(--danger-color);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-pending {
+            background: rgba(255, 193, 7, 0.2);
+            color: #856404;
+        }
+
+        .status-approved {
+            background: rgba(40, 167, 69, 0.2);
+            color: #155724;
+        }
+
+        .status-rejected {
+            background: rgba(220, 53, 69, 0.2);
+            color: #721c24;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-approve {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .btn-approve:hover {
+            background: #218838;
+        }
+
+        .btn-reject {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        .btn-reject:hover {
+            background: #c82333;
+        }
+
+        .btn-view {
+            background: var(--info-color);
+            color: white;
+        }
+
+        .btn-view:hover {
+            background: #138496;
+        }
+
+        .btn:disabled {
+            background: var(--dark-gray);
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            margin: 20px;
+            padding: 30px;
+            border-radius: var(--border-radius);
+            width: 100%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--medium-gray);
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            padding: 5px;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--light-gray);
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .detail-value {
+            color: var(--text-primary);
+            text-align: right;
+            max-width: 60%;
+            word-wrap: break-word;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid var(--medium-gray);
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-secondary {
+            background: var(--medium-gray);
+            color: var(--text-primary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--dark-gray);
+            color: white;
+        }
+
+        /* User Profile Section */
+        .user-profile-section {
+            background: var(--light-gray);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .user-profile-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .user-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .user-stat-item {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .user-stat-value {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .user-stat-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        /* Edit Amount Form */
+        .edit-amount-form {
+            background: var(--light-gray);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border: 2px solid var(--primary-color);
+        }
+
+        .edit-amount-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .amount-input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .amount-input-label {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+
+        .amount-input {
+            padding: 12px 15px;
+            border: 2px solid var(--medium-gray);
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            background: white;
+            transition: var(--transition);
+        }
+
+        .amount-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+        }
+
+        .amount-display {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+            padding: 10px;
+            background: white;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .original-amount {
+            color: var(--text-secondary);
+        }
+
+        .new-amount {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .amount-difference {
+            font-weight: 600;
+        }
+
+        .amount-difference.positive {
+            color: var(--success-color);
+        }
+
+        .amount-difference.negative {
+            color: var(--danger-color);
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: var(--text-secondary);
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--medium-gray);
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+
+        .empty-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 16px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            z-index: 1001;
+            transform: translateX(100%);
+            transition: var(--transition);
+            max-width: 350px;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast.success {
+            background: var(--success-color);
+        }
+
+        .toast.error {
+            background: var(--danger-color);
+        }
+
+        .toast.info {
+            background: var(--info-color);
+        }
+
+        /* Animations */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                max-width: 100%;
+            }
+
+            .header {
+                padding: 20px;
+            }
+
+            .stats-container {
+                grid-template-columns: repeat(2, 1fr);
+                padding: 20px;
+                gap: 15px;
+            }
+
+            .search-filters {
+                padding: 15px 20px;
+            }
+
+            .filters {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .filter-group {
+                justify-content: space-between;
+            }
+
+            .refresh-btn {
+                margin-left: 0;
+                margin-top: 15px;
+            }
+
+            .transactions-container {
+                padding: 20px;
+                overflow-x: auto;
+            }
+
+            .transactions-table {
+                min-width: 900px;
+            }
+
+            .modal-content {
+                margin: 10px;
+                padding: 20px;
+            }
+
+            .modal-actions {
+                flex-direction: column;
+            }
+
+            .user-stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🔧 Admin Dashboard</h1>
+            <p>Transaction Management System</p>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-container">
+            <div class="stat-card">
+                <div class="stat-icon">⏳</div>
+                <div class="stat-value stat-pending" id="pendingCount">0</div>
+                <div class="stat-label">Pending Requests</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">✅</div>
+                <div class="stat-value stat-approved" id="approvedCount">0</div>
+                <div class="stat-label">Approved Today</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">❌</div>
+                <div class="stat-value stat-rejected" id="rejectedCount">0</div>
+                <div class="stat-label">Rejected Today</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">💰</div>
+                <div class="stat-value stat-total" id="totalAmount">₦0</div>
+                <div class="stat-label">Total Amount (Filtered)</div>
+            </div>
+        </div>
+
+        <!-- Search and Filters -->
+        <div class="search-filters">
+            <div class="search-section">
+                <input 
+                    type="text" 
+                    class="search-input" 
+                    id="searchInput"
+                    placeholder="🔍 Search by Transaction ID, Email, User Name, or Amount..."
+                >
+                <button class="clear-search-btn" id="clearSearchBtn" onclick="clearSearch()">Clear</button>
+            </div>
+
+            <div class="filters">
+                <div class="filter-group">
+                    <label class="filter-label">Status:</label>
+                    <select class="filter-select" id="statusFilter">
+                        <option value="">All Statuses</option>
+                        <option value="pending">Pending</option>
+                        <option value="approved">Approved</option>
+                        <option value="rejected">Rejected</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">Type:</label>
+                    <select class="filter-select" id="typeFilter">
+                        <option value="">All Types</option>
+                        <option value="deposit">Deposits</option>
+                        <option value="withdrawal">Withdrawals</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">Date:</label>
+                    <select class="filter-select" id="dateFilter">
+                        <option value="today">Today</option>
+                        <option value="yesterday">Yesterday</option>
+                        <option value="week">This Week</option>
+                        <option value="month">This Month</option>
+                        <option value="all">All Time</option>
+                    </select>
+                </div>
+                <button class="refresh-btn" onclick="refreshData()">🔄 Refresh</button>
+            </div>
+        </div>
+
+        <!-- Search Results Info -->
+        <div class="search-info" id="searchInfo" style="display: none;">
+            <span id="searchResultsText"></span>
+        </div>
+
+        <!-- Transactions Table -->
+        <div class="transactions-container">
+            <h2 class="section-title">Transaction Requests</h2>
+
+            <div id="loadingState" class="loading">
+                <div class="loading-spinner"></div>
+                <div>Loading transactions...</div>
+            </div>
+
+            <div id="transactionsTable" style="display: none;">
+                <table class="transactions-table">
+                    <thead>
+                        <tr>
+                            <th>Date/Time</th>
+                            <th>Transaction ID</th>
+                            <th>User</th>
+                            <th>Type</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transactionsBody">
+                        <!-- Transactions will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="emptyState" class="empty-state" style="display: none;">
+                <div class="empty-icon">📊</div>
+                <div>No transactions found</div>
+                <div style="font-size: 14px; margin-top: 5px;">Transactions will appear here when users make requests</div>
+            </div>
+        </div>
+
+        <!-- Transaction Detail Modal -->
+        <div class="modal" id="detailModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title">Transaction Details</h2>
+                    <button class="close-btn" onclick="closeModal()">&times;</button>
+                </div>
+                <div id="transactionDetails">
+                    <!-- Details will be loaded here -->
+                </div>
+                <div class="modal-actions" id="modalActions">
+                    <!-- Action buttons will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- User Profile Modal -->
+        <div class="modal" id="userProfileModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title">User Profile & Statistics</h2>
+                    <button class="close-btn" onclick="closeUserModal()">&times;</button>
+                </div>
+                <div id="userProfileDetails">
+                    <!-- User details will be loaded here -->
+                </div>
+                <div class="modal-actions">
+                    <button class="modal-btn btn-secondary" onclick="closeUserModal()">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+        import { 
+            getDatabase, 
+            ref, 
+            get,
+            set,
+            update,
+            remove,
+            onValue,
+            query,
+            orderByChild,
+            startAt,
+            endAt
+        } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCcTFYAIp1-TA1irU8l5N8iihfnYCGWrHw",
+            authDomain: "and-facebook-ab84c.firebaseapp.com",
+            databaseURL: "https://and-facebook-ab84c-default-rtdb.firebaseio.com",
+            projectId: "and-facebook-ab84c",
+            storageBucket: "and-facebook-ab84c.appspot.com",
+            messagingSenderId: "4885749329",
+            appId: "1:4885749329:web:2d5b0e46519b5dc4c8e270"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // Global variables
+        let allTransactions = [];
+        let filteredTransactions = [];
+        let allUsers = {};
+        let currentTransaction = null;
+        let editableAmount = 0;
+        let searchTerm = '';
+
+        // DOM elements
+        const loadingState = document.getElementById('loadingState');
+        const transactionsTable = document.getElementById('transactionsTable');
+        const emptyState = document.getElementById('emptyState');
+        const transactionsBody = document.getElementById('transactionsBody');
+        const statusFilter = document.getElementById('statusFilter');
+        const typeFilter = document.getElementById('typeFilter');
+        const dateFilter = document.getElementById('dateFilter');
+        const searchInput = document.getElementById('searchInput');
+        const searchInfo = document.getElementById('searchInfo');
+        const searchResultsText = document.getElementById('searchResultsText');
+
+        // Stats elements
+        const pendingCount = document.getElementById('pendingCount');
+        const approvedCount = document.getElementById('approvedCount');
+        const rejectedCount = document.getElementById('rejectedCount');
+        const totalAmount = document.getElementById('totalAmount');
+
+        // Utility Functions
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+
+            setTimeout(() => toast.classList.add('show'), 100);
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => document.body.removeChild(toast), 300);
+            }, 4000);
+        }
+
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('en-NG', {
+                style: 'currency',
+                currency: 'NGN'
+            }).format(amount);
+        }
+
+        function formatDate(timestamp) {
+            return new Date(timestamp).toLocaleDateString('en-NG', {
+                day: 'numeric',
+                month: 'short',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        function getDateRange(filter) {
+            const now = new Date();
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+            switch(filter) {
+                case 'today':
+                    return { start: today.getTime(), end: now.getTime() };
+                case 'yesterday':
+                    const yesterday = new Date(today);
+                    yesterday.setDate(yesterday.getDate() - 1);
+                    return { start: yesterday.getTime(), end: today.getTime() };
+                case 'week':
+                    const weekStart = new Date(today);
+                    weekStart.setDate(weekStart.getDate() - 7);
+                    return { start: weekStart.getTime(), end: now.getTime() };
+                case 'month':
+                    const monthStart = new Date(today);
+                    monthStart.setDate(monthStart.getDate() - 30);
+                    return { start: monthStart.getTime(), end: now.getTime() };
+                default:
+                    return { start: 0, end: now.getTime() };
+            }
+        }
+
+        // Search function
+        function performSearch(transactions, term) {
+            if (!term.trim()) return transactions;
+
+            const searchTerm = term.toLowerCase().trim();
+
+            return transactions.filter(transaction => {
+                // Search in transaction ID
+                if (transaction.id && transaction.id.toLowerCase().includes(searchTerm)) return true;
+
+                // Search in user email
+                if (transaction.userEmail && transaction.userEmail.toLowerCase().includes(searchTerm)) return true;
+
+                // Search in user name
+                if (transaction.userName && transaction.userName.toLowerCase().includes(searchTerm)) return true;
+
+                // Search in amount (convert to string and search)
+                if (transaction.amount && transaction.amount.toString().includes(searchTerm)) return true;
+
+                // Search in final amount if exists
+                if (transaction.finalAmount && transaction.finalAmount.toString().includes(searchTerm)) return true;
+
+                // Search in formatted currency
+                const formattedAmount = formatCurrency(transaction.amount).toLowerCase();
+                if (formattedAmount.includes(searchTerm)) return true;
+
+                // Search in transaction type
+                if (transaction.type && transaction.type.toLowerCase().includes(searchTerm)) return true;
+
+                // Search in status
+                if (transaction.status && transaction.status.toLowerCase().includes(searchTerm)) return true;
+
+                return false;
+            });
+        }
+
+        // Load all users data
+        async function loadUsers() {
+            try {
+                const usersRef = ref(db, 'users');
+                const snapshot = await get(usersRef);
+
+                allUsers = {};
+                if (snapshot.exists()) {
+                    snapshot.forEach(child => {
+                        allUsers[child.key] = child.val();
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading users:', error);
+            }
+        }
+
+        // Load all transactions
+        async function loadTransactions() {
+            try {
+                loadingState.style.display = 'block';
+                transactionsTable.style.display = 'none';
+                emptyState.style.display = 'none';
+
+                const requestsRef = ref(db, 'admin/transaction_requests');
+                const snapshot = await get(requestsRef);
+
+                allTransactions = [];
+                if (snapshot.exists()) {
+                    snapshot.forEach(child => {
+                        const transaction = child.val();
+                        // Enrich transaction with user data if available
+                        if (transaction.userId && allUsers[transaction.userId]) {
+                            transaction.userName = transaction.userName || allUsers[transaction.userId].name || allUsers[transaction.userId].fullName;
+                            transaction.userEmail = transaction.userEmail || allUsers[transaction.userId].email;
+                        }
+
+                        allTransactions.push({
+                            id: child.key,
+                            ...transaction
+                        });
+                    });
+                }
+
+                // Sort by timestamp (newest first)
+                allTransactions.sort((a, b) => b.timestamp - a.timestamp);
+
+                applyFilters();
+                updateStats();
+
+            } catch (error) {
+                console.error('Error loading transactions:', error);
+                showToast('Error loading transactions', 'error');
+                loadingState.style.display = 'none';
+                emptyState.style.display = 'block';
+            }
+        }
+
+        // Apply filters and search
+        function applyFilters() {
+            const statusFilterValue = statusFilter.value;
+            const typeFilterValue = typeFilter.value;
+            const dateFilterValue = dateFilter.value;
+            const dateRange = getDateRange(dateFilterValue);
+
+            // First apply basic filters
+            let filtered = allTransactions.filter(transaction => {
+                const matchesStatus = !statusFilterValue || transaction.status === statusFilterValue;
+                const matchesType = !typeFilterValue || transaction.type === typeFilterValue;
+                const matchesDate = transaction.timestamp >= dateRange.start && transaction.timestamp <= dateRange.end;
+
+                return matchesStatus && matchesType && matchesDate;
+            });
+
+            // Then apply search
+            if (searchTerm.trim()) {
+                filtered = performSearch(filtered, searchTerm);
+
+                // Show search info
+                searchInfo.style.display = 'block';
+                searchResultsText.innerHTML = `Found ${filtered.length} result${filtered.length !== 1 ? 's' : ''} for "<span class="search-highlight">${searchTerm}</span>"`;
+            } else {
+                searchInfo.style.display = 'none';
+            }
+
+            filteredTransactions = filtered;
+            renderTransactions();
+        }
+
+        // Render transactions table
+        function renderTransactions() {
+            loadingState.style.display = 'none';
+
+            if (filteredTransactions.length === 0) {
+                transactionsTable.style.display = 'none';
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+            transactionsTable.style.display = 'block';
+
+            transactionsBody.innerHTML = filteredTransactions.map(transaction => {
+                const typeClass = transaction.type === 'deposit' ? 'type-deposit' : 'type-withdrawal';
+                const statusClass = `status-${transaction.status}`;
+
+                const isPending = transaction.status === 'pending';
+                const actionButtons = isPending ? `
+                    <button class="btn btn-approve" onclick="showApprovalForm('${transaction.id}')">
+                        ✅ Approve
+                    </button>
+                    <button class="btn btn-reject" onclick="rejectTransaction('${transaction.id}')">
+                        ❌ Reject
+                    </button>
+                ` : '';
+
+                return `
+                    <tr>
+                        <td>${formatDate(transaction.timestamp)}</td>
+                        <td>
+                            <div style="font-family: monospace; font-size: 12px; color: var(--primary-color); font-weight: 600;">
+                                ${transaction.id}
+                            </div>
+                        </td>
+                        <td>
+                            <div class="user-info" onclick="showUserProfile('${transaction.userId || ''}', '${transaction.userEmail}')">
+                                <div class="user-name">${transaction.userName || 'Unknown User'}</div>
+                                <div class="user-email">${transaction.userEmail || 'No email'}</div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="transaction-type ${typeClass}">
+                                ${transaction.type}
+                            </span>
+                        </td>
+                        <td style="font-weight: 700;">
+                            ${formatCurrency(transaction.amount)}
+                            ${transaction.finalAmount && transaction.finalAmount !== transaction.amount ? 
+                                `<div style="font-size: 12px; color: var(--primary-color);">Final: ${formatCurrency(transaction.finalAmount)}</div>` : 
+                                ''}
+                        </td>
+                        <td>
+                            <span class="status-badge ${statusClass}">
+                                ${transaction.status}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn btn-view" onclick="viewTransaction('${transaction.id}')">
+                                    👁️ View
+                                </button>
+                                ${actionButtons}
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Update statistics based on filtered transactions
+        function updateStats() {
+            const today = getDateRange('today');
+            const todayTransactions = allTransactions.filter(t => 
+                t.timestamp >= today.start && t.timestamp <= today.end
+            );
+
+            const pending = allTransactions.filter(t => t.status === 'pending').length;
+            const approvedToday = todayTransactions.filter(t => t.status === 'approved').length;
+            const rejectedToday = todayTransactions.filter(t => t.status === 'rejected').length;
+
+            // Calculate total amount from filtered transactions
+            const totalFiltered = filteredTransactions.reduce((sum, t) => {
+                const amount = t.finalAmount || t.amount || 0;
+                return sum + amount;
+            }, 0);
+
+            pendingCount.textContent = pending;
+            approvedCount.textContent = approvedToday;
+            rejectedCount.textContent = rejectedToday;
+            totalAmount.textContent = formatCurrency(totalFiltered);
+        }
+
+        // Show user profile and statistics
+        window.showUserProfile = async function(userId, userEmail) {
+            if (!userId && !userEmail) {
+                showToast('No user information available', 'error');
+                return;
+            }
+
+            try {
+                // Get user transactions
+                const userTransactions = allTransactions.filter(t => 
+                    t.userId === userId || t.userEmail === userEmail
+                );
+
+                if (userTransactions.length === 0) {
+                    showToast('No transactions found for this user', 'error');
+                    return;
+                }
+
+                // Calculate user statistics
+                const totalTransactions = userTransactions.length;
+                const deposits = userTransactions.filter(t => t.type === 'deposit');
+                const withdrawals = userTransactions.filter(t => t.type === 'withdrawal');
+                const pending = userTransactions.filter(t => t.status === 'pending');
+                const approved = userTransactions.filter(t => t.status === 'approved');
+                const rejected = userTransactions.filter(t => t.status === 'rejected');
+
+                const totalDeposited = deposits.reduce((sum, t) => sum + (t.finalAmount || t.amount || 0), 0);
+                const totalWithdrawn = withdrawals.reduce((sum, t) => sum + (t.finalAmount || t.amount || 0), 0);
+                const totalPending = pending.reduce((sum, t) => sum + (t.amount || 0), 0);
+
+                // Get user profile data
+                let userProfile = {};
+                if (userId && allUsers[userId]) {
+                    userProfile = allUsers[userId];
+                } else {
+                    // Try to get basic info from transactions
+                    const firstTransaction = userTransactions[0];
+                    userProfile = {
+                        name: firstTransaction.userName || 'Unknown User',
+                        email: firstTransaction.userEmail || userEmail,
+                        createdAt: Math.min(...userTransactions.map(t => t.timestamp))
+                    };
+                }
+
+                const userDetailsHTML = `
+                    <div class="user-profile-section">
+                        <div class="user-profile-title">
+                            👤 User Information
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Name:</span>
+                            <span class="detail-value">${userProfile.name || userProfile.fullName || 'Unknown'}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Email:</span>
+                            <span class="detail-value">${userProfile.email || userEmail || 'Unknown'}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">User ID:</span>
+                            <span class="detail-value">${userId || 'N/A'}</span>
+                        </div>
+                        ${userProfile.phone ? `
+                            <div class="detail-row">
+                                <span class="detail-label">Phone:</span>
+                                <span class="detail-value">${userProfile.phone}</span>
+                            </div>
+                        ` : ''}
+                        <div class="detail-row">
+                            <span class="detail-label">First Transaction:</span>
+                            <span class="detail-value">${formatDate(userProfile.createdAt || Math.min(...userTransactions.map(t => t.timestamp)))}</span>
+                        </div>
+                    </div>
+
+                    <div class="user-profile-section">
+                        <div class="user-profile-title">
+                            📊 Transaction Statistics
+                        </div>
+                        <div class="user-stats-grid">
+                            <div class="user-stat-item">
+                                <div class="user-stat-value">${totalTransactions}</div>
+                                <div class="user-stat-label">Total Transactions</div>
+                            </div>
+                            <div class="user-stat-item">
+                                <div class="user-stat-value stat-approved">${approved.length}</div>
+                                <div class="user-stat-label">Approved</div>
+                            </div>
+                            <div class="user-stat-item">
+                                <div class="user-stat-value stat-pending">${pending.length}</div>
+                                <div class="user-stat-label">Pending</div>
+                            </div>
+                            <div class="user-stat-item">
+                                <div class="user-stat-value stat-rejected">${rejected.length}</div>
+                                <div class="user-stat-label">Rejected</div>
+                            </div>
+                            <div class="user-stat-item">
+                                <div class="user-stat-value">${deposits.length}</div>
+                                <div class="user-stat-label">Deposits</div>
+                            </div>
+                            <div class="user-stat-item">
+                                <div class="user-stat-value">${withdrawals.length}</div>
+                                <div class="user-stat-label">Withdrawals</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="user-profile-section">
+                        <div class="user-profile-title">
+                            💰 Financial Summary
+                        </div>
+                        <div class="user-stats-grid">
+                            <div class="user-stat-item">
+                                <div class="user-stat-value stat-approved">${formatCurrency(totalDeposited)}</div>
+                                <div class="user-stat-label">Total Deposited</div>
+                            </div>
+                            <div class="user-stat-item">
+                                <div class="user-stat-value stat-rejected">${formatCurrency(totalWithdrawn)}</div>
+                                <div class="user-stat-label">Total Withdrawn</div>
+                            </div>
+                            <div class="user-stat-item">
+                                <div class="user-stat-value stat-pending">${formatCurrency(totalPending)}</div>
+                                <div class="user-stat-label">Pending Amount</div>
+                            </div>
+                            <div class="user-stat-item">
+                                <div class="user-stat-value stat-total">${formatCurrency(totalDeposited - totalWithdrawn)}</div>
+                                <div class="user-stat-label">Net Amount</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="user-profile-section">
+                        <div class="user-profile-title">
+                            📋 Recent Transactions
+                        </div>
+                        <div style="max-height: 300px; overflow-y: auto;">
+                            ${userTransactions.slice(0, 10).map(t => `
+                                <div class="detail-row">
+                                    <span class="detail-label">
+                                        ${formatDate(t.timestamp)}<br>
+                                        <span class="transaction-type ${t.type === 'deposit' ? 'type-deposit' : 'type-withdrawal'}">${t.type}</span>
+                                    </span>
+                                    <span class="detail-value">
+                                        ${formatCurrency(t.finalAmount || t.amount)}<br>
+                                        <span class="status-badge status-${t.status}">${t.status}</span>
+                                    </span>
+                                </div>
+                            `).join('')}
+                            ${userTransactions.length > 10 ? `
+                                <div style="text-align: center; padding: 10px; color: var(--text-secondary); font-size: 12px;">
+                                    ... and ${userTransactions.length - 10} more transactions
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+
+                document.getElementById('userProfileDetails').innerHTML = userDetailsHTML;
+                document.getElementById('userProfileModal').classList.add('show');
+
+            } catch (error) {
+                console.error('Error loading user profile:', error);
+                showToast('Error loading user profile', 'error');
+            }
+        };
+
+        // Close user profile modal
+        window.closeUserModal = function() {
+            document.getElementById('userProfileModal').classList.remove('show');
+        };
+
+        // Clear search
+        window.clearSearch = function() {
+            searchInput.value = '';
+            searchTerm = '';
+            applyFilters();
+        };
+
+        // Create editable amount form
+        function createEditAmountForm(originalAmount) {
+            editableAmount = originalAmount;
+
+            return `
+                <div class="edit-amount-form">
+                    <div class="edit-amount-title">
+                        💰 Edit Credit Amount
+                    </div>
+                    <div class="amount-input-group">
+                        <label class="amount-input-label">Amount to Credit:</label>
+                        <input 
+                            type="number" 
+                            class="amount-input" 
+                            id="editableAmountInput"
+                            value="${originalAmount}"
+                            min="0"
+                            step="0.01"
+                            placeholder="Enter amount to credit"
+                        >
+                        <div class="amount-display">
+                            <span class="original-amount">Original: ${formatCurrency(originalAmount)}</span>
+                            <span class="new-amount" id="newAmountDisplay">${formatCurrency(originalAmount)}</span>
+                            <span class="amount-difference" id="amountDifference">No change</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Update amount display
+        function updateAmountDisplay() {
+            const input = document.getElementById('editableAmountInput');
+            const newAmountDisplay = document.getElementById('newAmountDisplay');
+            const differenceDisplay = document.getElementById('amountDifference');
+
+            if (!input || !newAmountDisplay || !differenceDisplay) return;
+
+            const newAmount = parseFloat(input.value) || 0;
+            const originalAmount = currentTransaction.amount;
+            const difference = newAmount - originalAmount;
+
+            editableAmount = newAmount;
+            newAmountDisplay.textContent = formatCurrency(newAmount);
+
+            if (difference === 0) {
+                differenceDisplay.textContent = 'No change';
+                differenceDisplay.className = 'amount-difference';
+            } else if (difference > 0) {
+                differenceDisplay.textContent = `+${formatCurrency(difference)}`;
+                differenceDisplay.className = 'amount-difference positive';
+            } else {
+                differenceDisplay.textContent = `${formatCurrency(difference)}`;
+                differenceDisplay.className = 'amount-difference negative';
+            }
+        }
+
+        // Show approval form with editable amount
+        window.showApprovalForm = function(transactionId) {
+            currentTransaction = allTransactions.find(t => t.id === transactionId);
+            if (!currentTransaction) return;
+
+            const detailsHTML = `
+                <div class="detail-row">
+                    <span class="detail-label">Transaction ID:</span>
+                    <span class="detail-value">${currentTransaction.id}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">User:</span>
+                    <span class="detail-value">${currentTransaction.userName || 'Unknown User'}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Email:</span>
+                    <span class="detail-value">${currentTransaction.userEmail}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Type:</span>
+                    <span class="detail-value">
+                        <span class="transaction-type ${currentTransaction.type === 'deposit' ? 'type-deposit' : 'type-withdrawal'}">
+                            ${currentTransaction.type.toUpperCase()}
+                        </span>
+                    </span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Original Amount:</span>
+                    <span class="detail-value" style="font-weight: 700; font-size: 18px;">
+                        ${formatCurrency(currentTransaction.amount)}
+                    </span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Status:</span>
+                    <span class="detail-value">
+                        <span class="status-badge status-${currentTransaction.status}">
+                            ${currentTransaction.status.toUpperCase()}
+                        </span>
+                    </span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Requested:</span>
+                    <span class="detail-value">${formatDate(currentTransaction.timestamp)}</span>
+                </div>
+                ${currentTransaction.type === 'deposit' ? `
+                    <div class="detail-row">
+                        <span class="detail-label">Payment Method:</span>
+                        <span class="detail-value">${currentTransaction.method || 'Not specified'}</span>
+                    </div>
+                    ${currentTransaction.reference ? `
+                        <div class="detail-row">
+                            <span class="detail-label">Reference:</span>
+                            <span class="detail-value">${currentTransaction.reference}</span>
+                        </div>
+                    ` : ''}
+                    ${currentTransaction.notes ? `
+                        <div class="detail-row">
+                            <span class="detail-label">Notes:</span>
+                            <span class="detail-value">${currentTransaction.notes}</span>
+                        </div>
+                    ` : ''}
+                ` : `
+                    <div class="detail-row">
+                        <span class="detail-label">Bank Name:</span>
+                        <span class="detail-value">${currentTransaction.bankDetails?.bankName || 'Not specified'}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Account Number:</span>
+                        <span class="detail-value">${currentTransaction.bankDetails?.accountNumber || 'Not specified'}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Account Name:</span>
+                        <span class="detail-value">${currentTransaction.bankDetails?.accountName || 'Not specified'}</span>
+                    </div>
+                    ${currentTransaction.reason ? `
+                        <div class="detail-row">
+                            <span class="detail-label">Reason:</span>
+                            <span class="detail-value">${currentTransaction.reason}</span>
+                        </div>
+                    ` : ''}
+                `}
+                ${createEditAmountForm(currentTransaction.amount)}
+            `;
+
+            document.getElementById('transactionDetails').innerHTML = detailsHTML;
+
+            // Add event listener for amount input
+            const amountInput = document.getElementById('editableAmountInput');
+            if (amountInput) {
+                amountInput.addEventListener('input', updateAmountDisplay);
+                amountInput.addEventListener('change', updateAmountDisplay);
+            }
+
+            // Show action buttons
+            const modalActions = document.getElementById('modalActions');
+            modalActions.innerHTML = `
+                <button class="modal-btn btn-approve" onclick="approveTransactionWithAmount('${currentTransaction.id}')">
+                    ✅ Approve with Amount
+                </button>
+                <button class="modal-btn btn-reject" onclick="rejectTransaction('${currentTransaction.id}', true)">
+                    ❌ Reject Transaction
+                </button>
+                <button class="modal-btn btn-secondary" onclick="closeModal()">
+                    Cancel
+                </button>
+            `;
+
+            document.getElementById('detailModal').classList.add('show');
+        };
+
+        // View transaction details (read-only)
+        window.viewTransaction = function(transactionId) {
+            currentTransaction = allTransactions.find(t => t.id === transactionId);
+            if (!currentTransaction) return;
+
+            const detailsHTML = `
+                <div class="detail-row">
+                    <span class="detail-label">Transaction ID:</span>
+                    <span class="detail-value">${currentTransaction.id}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">User:</span>
+                    <span class="detail-value">${currentTransaction.userName || 'Unknown User'}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Email:</span>
+                    <span class="detail-value">${currentTransaction.userEmail}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Type:</span>
+                    <span class="detail-value">
+                        <span class="transaction-type ${currentTransaction.type === 'deposit' ? 'type-deposit' : 'type-withdrawal'}">
+                            ${currentTransaction.type.toUpperCase()}
+                        </span>
+                    </span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Amount:</span>
+                    <span class="detail-value" style="font-weight: 700; font-size: 18px;">
+                        ${formatCurrency(currentTransaction.amount)}
+                    </span>
+                </div>
+                ${currentTransaction.finalAmount && currentTransaction.finalAmount !== currentTransaction.amount ? `
+                    <div class="detail-row">
+                        <span class="detail-label">Final Amount:</span>
+                        <span class="detail-value" style="font-weight: 700; font-size: 18px; color: var(--primary-color);">
+                            ${formatCurrency(currentTransaction.finalAmount)}
+                        </span>
+                    </div>
+                ` : ''}
+                <div class="detail-row">
+                    <span class="detail-label">Status:</span>
+                    <span class="detail-value">
+                        <span class="status-badge status-${currentTransaction.status}">
+                            ${currentTransaction.status.toUpperCase()}
+                        </span>
+                    </span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Requested:</span>
+                    <span class="detail-value">${formatDate(currentTransaction.timestamp)}</span>
+                </div>
+                ${currentTransaction.approvedAt ? `
+                    <div class="detail-row">
+                        <span class="detail-label">Approved:</span>
+                        <span class="detail-value">${formatDate(currentTransaction.approvedAt)}</span>
+                    </div>
+                ` : ''}
+                ${currentTransaction.rejectedAt ? `
+                    <div class="detail-row">
+                        <span class="detail-label">Rejected:</span>
+                        <span class="detail-value">${formatDate(currentTransaction.rejectedAt)}</span>
+                    </div>
+                ` : ''}
+                ${currentTransaction.rejectionReason ? `
+                    <div class="detail-row">
+                        <span class="detail-label">Rejection Reason:</span>
+                        <span class="detail-value">${currentTransaction.rejectionReason}</span>
+                    </div>
+                ` : ''}
+                ${currentTransaction.type === 'deposit' ? `
+                    <div class="detail-row">
+                        <span class="detail-label">Payment Method:</span>
+                        <span class="detail-value">${currentTransaction.method || 'Not specified'}</span>
+                    </div>
+                    ${currentTransaction.reference ? `
+                        <div class="detail-row">
+                            <span class="detail-label">Reference:</span>
+                            <span class="detail-value">${currentTransaction.reference}</span>
+                        </div>
+                    ` : ''}
+                    ${currentTransaction.notes ? `
+                        <div class="detail-row">
+                            <span class="detail-label">Notes:</span>
+                            <span class="detail-value">${currentTransaction.notes}</span>
+                        </div>
+                    ` : ''}
+                ` : `
+                    <div class="detail-row">
+                        <span class="detail-label">Bank Name:</span>
+                        <span class="detail-value">${currentTransaction.bankDetails?.bankName || 'Not specified'}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Account Number:</span>
+                        <span class="detail-value">${currentTransaction.bankDetails?.accountNumber || 'Not specified'}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Account Name:</span>
+                        <span class="detail-value">${currentTransaction.bankDetails?.accountName || 'Not specified'}</span>
+                    </div>
+                    ${currentTransaction.reason ? `
+                        <div class="detail-row">
+                            <span class="detail-label">Reason:</span>
+                            <span class="detail-value">${currentTransaction.reason}</span>
+                        </div>
+                    ` : ''}
+                `}
+            `;
+
+            document.getElementById('transactionDetails').innerHTML = detailsHTML;
+
+            // Show action buttons if transaction is pending
+            const modalActions = document.getElementById('modalActions');
+            if (currentTransaction.status === 'pending') {
+                modalActions.innerHTML = `
+                    <button class="modal-btn btn-approve" onclick="showApprovalForm('${currentTransaction.id}')">
+                        ✅ Approve with Edit
+                    </button>
+                    <button class="modal-btn btn-reject" onclick="rejectTransaction('${currentTransaction.id}', true)">
+                        ❌ Reject Transaction
+                    </button>
+                    <button class="modal-btn btn-secondary" onclick="closeModal()">
+                        Close
+                    </button>
+                `;
+            } else {
+                modalActions.innerHTML = `
+                    <button class="modal-btn btn-secondary" onclick="closeModal()">
+                        Close
+                    </button>
+                `;
+            }
+
+            document.getElementById('detailModal').classList.add('show');
+        };
+
+        // Approve transaction with custom amount
+        window.approveTransactionWithAmount = async function(transactionId) {
+            const finalAmount = editableAmount;
+
+            if (finalAmount <= 0) {
+                showToast('Please enter a valid amount greater than 0', 'error');
+                return;
+            }
+
+            if (!confirm(`Are you sure you want to approve this transaction with ${formatCurrency(finalAmount)}?`)) {
+                return;
+            }
+
+            try {
+                const transaction = allTransactions.find(t => t.id === transactionId);
+                if (!transaction) {
+                    showToast('Transaction not found', 'error');
+                    return;
+                }
+
+                // Update transaction status in admin requests
+                await update(ref(db, `admin/transaction_requests/${transactionId}`), {
+                    status: 'approved',
+                    approvedAt: Date.now(),
+                    approvedBy: 'admin',
+                    finalAmount: finalAmount,
+                    originalAmount: transaction.amount
+                });
+
+                // Update transaction in user's transactions
+                await update(ref(db, `transactions/${transaction.userId}/${transactionId}`), {
+                    status: 'approved',
+                    approvedAt: Date.now(),
+                    finalAmount: finalAmount,
+                    originalAmount: transaction.amount
+                });
+
+                // Update user's wallet balance
+                const walletRef = ref(db, `wallets/${transaction.userId}`);
+                const walletSnapshot = await get(walletRef);
+                const currentWallet = walletSnapshot.val() || {};
+
+                if (transaction.type === 'deposit') {
+                    // Add the final amount to balance and update totals
+                    await update(walletRef, {
+                        balance: (currentWallet.balance || 0) + finalAmount,
+                        totalDeposits: (currentWallet.totalDeposits || 0) + finalAmount,
+                        pendingDeposits: Math.max((currentWallet.pendingDeposits || 0) - transaction.amount, 0)
+                    });
+                } else if (transaction.type === 'withdrawal') {
+                    // Deduct the final amount from balance and update totals
+                    await update(walletRef, {
+                        balance: Math.max((currentWallet.balance || 0) - finalAmount, 0),
+                        totalWithdrawals: (currentWallet.totalWithdrawals || 0) + finalAmount,
+                        pendingWithdrawals: Math.max((currentWallet.pendingWithdrawals || 0) - transaction.amount, 0)
+                    });
+                }
+
+                const amountMessage = finalAmount === transaction.amount ? 
+                    `${transaction.type} approved successfully!` :
+                    `${transaction.type} approved with ${formatCurrency(finalAmount)} (adjusted from ${formatCurrency(transaction.amount)})`;
+
+                showToast(amountMessage, 'success');
+                closeModal();
+                await loadTransactions();
+
+            } catch (error) {
+                console.error('Error approving transaction:', error);
+                showToast('Error approving transaction', 'error');
+            }
+        };
+
+        // Reject transaction
+        window.rejectTransaction = async function(transactionId, fromModal = false) {
+            const reason = prompt('Please enter a reason for rejection (optional):');
+            if (reason === null) return; // User cancelled
+
+            try {
+                const transaction = allTransactions.find(t => t.id === transactionId);
+                if (!transaction) {
+                    showToast('Transaction not found', 'error');
+                    return;
+                }
+
+                // Update transaction status in admin requests
+                await update(ref(db, `admin/transaction_requests/${transactionId}`), {
+                    status: 'rejected',
+                    rejectedAt: Date.now(),
+                    rejectedBy: 'admin',
+                    rejectionReason: reason || 'No reason provided'
+                });
+
+                // Update transaction in user's transactions
+                await update(ref(db, `transactions/${transaction.userId}/${transactionId}`), {
+                    status: 'rejected',
+                    rejectedAt: Date.now(),
+                    rejectionReason: reason || 'No reason provided'
+                });
+
+                // Update user's wallet pending amounts
+                const walletRef = ref(db, `wallets/${transaction.userId}`);
+                const walletSnapshot = await get(walletRef);
+                const currentWallet = walletSnapshot.val() || {};
+
+                if (transaction.type === 'deposit') {
+                    await update(walletRef, {
+                        pendingDeposits: Math.max((currentWallet.pendingDeposits || 0) - transaction.amount, 0)
+                    });
+                } else if (transaction.type === 'withdrawal') {
+                    await update(walletRef, {
+                        pendingWithdrawals: Math.max((currentWallet.pendingWithdrawals || 0) - transaction.amount, 0)
+                    });
+                }
+
+                showToast(`${transaction.type} rejected successfully!`, 'success');
+
+                if (fromModal) {
+                    closeModal();
+                }
+
+                await loadTransactions();
+
+            } catch (error) {
+                console.error('Error rejecting transaction:', error);
+                showToast('Error rejecting transaction', 'error');
+            }
+        };
+
+        // Close modal
+        window.closeModal = function() {
+            document.getElementById('detailModal').classList.remove('show');
+            currentTransaction = null;
+            editableAmount = 0;
+        };
+
+        // Refresh data
+        window.refreshData = function() {
+            loadTransactions();
+            showToast('Data refreshed successfully!', 'info');
+        };
+
+        // Event listeners
+        statusFilter.addEventListener('change', applyFilters);
+        typeFilter.addEventListener('change', applyFilters);
+        dateFilter.addEventListener('change', applyFilters);
+
+        // Search functionality
+        searchInput.addEventListener('input', function(e) {
+            searchTerm = e.target.value;
+            applyFilters();
+        });
+
+        // Clear search on Escape key
+        searchInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                clearSearch();
+            }
+        });
+
+        // Close modals when clicking outside
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('modal')) {
+                if (e.target.id === 'detailModal') {
+                    closeModal();
+                } else if (e.target.id === 'userProfileModal') {
+                    closeUserModal();
+                }
+            }
+        });
+
+        // Close modals with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeModal();
+                closeUserModal();
+            }
+        });
+
+        // Setup real-time listener for transaction updates
+        function setupRealtimeListener() {
+            const requestsRef = ref(db, 'admin/transaction_requests');
+            onValue(requestsRef, (snapshot) => {
+                allTransactions = [];
+                if (snapshot.exists()) {
+                    snapshot.forEach(child => {
+                        const transaction = child.val();
+                        // Enrich transaction with user data if available
+                        if (transaction.userId && allUsers[transaction.userId]) {
+                            transaction.userName = transaction.userName || allUsers[transaction.userId].name || allUsers[transaction.userId].fullName;
+                            transaction.userEmail = transaction.userEmail || allUsers[transaction.userId].email;
+                        }
+
+                        allTransactions.push({
+                            id: child.key,
+                            ...transaction
+                        });
+                    });
+                }
+
+                allTransactions.sort((a, b) => b.timestamp - a.timestamp);
+                applyFilters();
+                updateStats();
+            });
+        }
+
+        // Auto-refresh every 30 seconds
+        setInterval(() => {
+            if (!document.hidden) {
+                loadTransactions();
+            }
+        }, 30000);
+
+        // Initialize dashboard
+        async function initializeDashboard() {
+            try {
+                // Load users first, then transactions
+                await loadUsers();
+                await loadTransactions();
+                setupRealtimeListener();
+                showToast('Admin dashboard loaded successfully!', 'info');
+            } catch (error) {
+                console.error('Error initializing dashboard:', error);
+                showToast('Error loading dashboard', 'error');
+            }
+        }
+
+        // Start the application
+        initializeDashboard();
+
+        console.log('✅ Enhanced Admin dashboard with search and user profiles loaded successfully');
+    </script>
+</body>
+</html>

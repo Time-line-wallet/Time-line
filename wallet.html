@@ -1,0 +1,1218 @@
+                <!DOCTYPE html>
+                <html lang="en">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Time-line - My Wallet</title>
+                    <style>
+                        :root {
+                            --primary-color: #4a90e2;
+                            --primary-dark: #357abd;
+                            --secondary-color: #667eea;
+                            --accent-color: #764ba2;
+                            --success-color: #28a745;
+                            --danger-color: #dc3545;
+                            --warning-color: #ffc107;
+                            --info-color: #17a2b8;
+                            --light-gray: #f8f9fa;
+                            --medium-gray: #e9ecef;
+                            --dark-gray: #6c757d;
+                            --text-primary: #333;
+                            --text-secondary: #666;
+                            --border-radius: 12px;
+                            --box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+                            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                        }
+
+                        * {
+                            margin: 0;
+                            padding: 0;
+                            box-sizing: border-box;
+                        }
+
+                        body {
+                            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+                            background: linear-gradient(135deg, var(--secondary-color) 0%, var(--accent-color) 100%);
+                            min-height: 100vh;
+                            color: var(--text-primary);
+                            line-height: 1.6;
+                        }
+
+                        .container {
+                            max-width: 480px;
+                            margin: 0 auto;
+                            background: white;
+                            min-height: 100vh;
+                            box-shadow: var(--box-shadow);
+                            position: relative;
+                        }
+
+                        /* Status Bar */
+                        .status-bar {
+                            background: linear-gradient(90deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+                            height: 4px;
+                        }
+
+                        /* Header */
+                        .header {
+                            display: flex;
+                            align-items: center;
+                            padding: 20px;
+                            border-bottom: 1px solid var(--medium-gray);
+                            background: white;
+                            position: sticky;
+                            top: 0;
+                            z-index: 100;
+                        }
+
+                        .back-btn {
+                            background: none;
+                            border: none;
+                            font-size: 24px;
+                            cursor: pointer;
+                            margin-right: 15px;
+                            color: var(--primary-color);
+                            padding: 8px;
+                            border-radius: 50%;
+                            transition: var(--transition);
+                        }
+
+                        .back-btn:hover {
+                            background: var(--light-gray);
+                            transform: translateX(-2px);
+                        }
+
+                        .header-title {
+                            font-size: 28px;
+                            font-weight: 700;
+                            color: var(--text-primary);
+                            letter-spacing: -0.5px;
+                        }
+
+                        /* Loading State */
+                        .loading {
+                            display: flex;
+                            flex-direction: column;
+                            justify-content: center;
+                            align-items: center;
+                            min-height: 60vh;
+                            padding: 20px;
+                        }
+
+                        .loading-spinner {
+                            width: 40px;
+                            height: 40px;
+                            border: 4px solid var(--medium-gray);
+                            border-top: 4px solid var(--primary-color);
+                            border-radius: 50%;
+                            animation: spin 1s linear infinite;
+                            margin-bottom: 20px;
+                        }
+
+                        /* Wallet Balance Card */
+                        .balance-card {
+                            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+                            margin: 20px;
+                            padding: 30px 25px;
+                            border-radius: var(--border-radius);
+                            color: white;
+                            text-align: center;
+                            box-shadow: var(--box-shadow);
+                            position: relative;
+                            overflow: hidden;
+                        }
+
+                        .balance-card::before {
+                            content: '';
+                            position: absolute;
+                            top: -50%;
+                            right: -20%;
+                            width: 100px;
+                            height: 100px;
+                            background: rgba(255, 255, 255, 0.1);
+                            border-radius: 50%;
+                            z-index: 0;
+                        }
+
+                        .balance-content {
+                            position: relative;
+                            z-index: 1;
+                        }
+
+                        .balance-label {
+                            font-size: 16px;
+                            opacity: 0.9;
+                            margin-bottom: 10px;
+                        }
+
+                        .balance-amount {
+                            font-size: 36px;
+                            font-weight: 700;
+                            margin-bottom: 15px;
+                            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+                        }
+
+                        .wallet-id {
+                            font-size: 14px;
+                            opacity: 0.8;
+                            font-family: monospace;
+                        }
+
+                        /* Quick Actions */
+                        .quick-actions {
+                            display: grid;
+                            grid-template-columns: 1fr 1fr;
+                            gap: 15px;
+                            padding: 0 20px 20px;
+                        }
+
+                        .action-btn {
+                            background: white;
+                            border: 2px solid var(--medium-gray);
+                            border-radius: var(--border-radius);
+                            padding: 20px;
+                            text-align: center;
+                            cursor: pointer;
+                            transition: var(--transition);
+                            text-decoration: none;
+                            color: var(--text-primary);
+                        }
+
+                        .action-btn:hover {
+                            border-color: var(--primary-color);
+                            transform: translateY(-2px);
+                            box-shadow: var(--box-shadow);
+                        }
+
+                        .action-icon {
+                            font-size: 24px;
+                            margin-bottom: 8px;
+                            display: block;
+                        }
+
+                        .action-text {
+                            font-weight: 600;
+                            font-size: 14px;
+                        }
+
+                        /* Company Account Info */
+                        .company-info {
+                            margin: 20px;
+                            padding: 20px;
+                            background: var(--light-gray);
+                            border-radius: var(--border-radius);
+                            border-left: 4px solid var(--info-color);
+                        }
+
+                        .company-info h3 {
+                            color: var(--info-color);
+                            margin-bottom: 15px;
+                            font-size: 18px;
+                        }
+
+                        .account-detail {
+                            margin-bottom: 10px;
+                            font-size: 14px;
+                        }
+
+                        .account-detail strong {
+                            color: var(--text-primary);
+                        }
+
+                        /* Transaction History */
+                        .transaction-section {
+                            margin: 20px;
+                        }
+
+                        .section-title {
+                            font-size: 20px;
+                            font-weight: 600;
+                            margin-bottom: 15px;
+                            color: var(--text-primary);
+                        }
+
+                        .transaction-list {
+                            background: white;
+                            border-radius: var(--border-radius);
+                            overflow: hidden;
+                            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                        }
+
+                        .transaction-item {
+                            display: flex;
+                            align-items: center;
+                            padding: 15px 20px;
+                            border-bottom: 1px solid var(--medium-gray);
+                        }
+
+                        .transaction-item:last-child {
+                            border-bottom: none;
+                        }
+
+                        .transaction-icon {
+                            width: 40px;
+                            height: 40px;
+                            border-radius: 50%;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            margin-right: 15px;
+                            font-size: 18px;
+                            color: white;
+                        }
+
+                        .transaction-icon.deposit {
+                            background: var(--success-color);
+                        }
+
+                        .transaction-icon.withdrawal {
+                            background: var(--danger-color);
+                        }
+
+                        .transaction-icon.pending {
+                            background: var(--warning-color);
+                            color: var(--text-primary);
+                        }
+
+                        .transaction-details {
+                            flex: 1;
+                        }
+
+                        .transaction-type {
+                            font-weight: 600;
+                            margin-bottom: 2px;
+                        }
+
+                        .transaction-date {
+                            font-size: 12px;
+                            color: var(--text-secondary);
+                        }
+
+                        .transaction-amount {
+                            font-weight: 700;
+                            font-size: 16px;
+                        }
+
+                        .transaction-amount.positive {
+                            color: var(--success-color);
+                        }
+
+                        .transaction-amount.negative {
+                            color: var(--danger-color);
+                        }
+
+                        .transaction-amount.pending {
+                            color: var(--warning-color);
+                        }
+
+                        .transaction-status {
+                            font-size: 12px;
+                            padding: 4px 8px;
+                            border-radius: 12px;
+                            font-weight: 500;
+                        }
+
+                        .status-pending {
+                            background: rgba(255, 193, 7, 0.2);
+                            color: #856404;
+                        }
+
+                        .status-approved {
+                            background: rgba(40, 167, 69, 0.2);
+                            color: #155724;
+                        }
+
+                        .status-rejected {
+                            background: rgba(220, 53, 69, 0.2);
+                            color: #721c24;
+                        }
+
+                        /* Modal Styles */
+                        .modal {
+                            display: none;
+                            position: fixed;
+                            top: 0;
+                            left: 0;
+                            width: 100%;
+                            height: 100%;
+                            background: rgba(0,0,0,0.5);
+                            z-index: 1000;
+                            animation: fadeIn 0.3s ease;
+                        }
+
+                        .modal.show {
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                        }
+
+                        .modal-content {
+                            background: white;
+                            margin: 20px;
+                            padding: 25px;
+                            border-radius: var(--border-radius);
+                            width: 100%;
+                            max-width: 400px;
+                            max-height: 90vh;
+                            overflow-y: auto;
+                            animation: slideUp 0.3s ease;
+                        }
+
+                        .modal-header {
+                            display: flex;
+                            justify-content: space-between;
+                            align-items: center;
+                            margin-bottom: 20px;
+                        }
+
+                        .modal-title {
+                            font-size: 24px;
+                            font-weight: 700;
+                            color: var(--text-primary);
+                        }
+
+                        .close-btn {
+                            background: none;
+                            border: none;
+                            font-size: 24px;
+                            cursor: pointer;
+                            color: var(--text-secondary);
+                            padding: 5px;
+                        }
+
+                        .form-group {
+                            margin-bottom: 20px;
+                        }
+
+                        .form-label {
+                            display: block;
+                            font-weight: 600;
+                            color: var(--text-primary);
+                            margin-bottom: 8px;
+                            font-size: 14px;
+                        }
+
+                        .form-input {
+                            width: 100%;
+                            padding: 12px 16px;
+                            border: 2px solid var(--medium-gray);
+                            border-radius: 8px;
+                            font-size: 16px;
+                            transition: var(--transition);
+                            background: white;
+                        }
+
+                        .form-input:focus {
+                            outline: none;
+                            border-color: var(--primary-color);
+                            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+                        }
+
+                        .form-textarea {
+                            min-height: 80px;
+                            resize: vertical;
+                            font-family: inherit;
+                        }
+
+                        .btn {
+                            width: 100%;
+                            padding: 14px 20px;
+                            border: none;
+                            border-radius: 8px;
+                            font-size: 16px;
+                            font-weight: 600;
+                            cursor: pointer;
+                            transition: var(--transition);
+                            margin-bottom: 10px;
+                        }
+
+                        .btn-primary {
+                            background: var(--primary-color);
+                            color: white;
+                        }
+
+                        .btn-primary:hover {
+                            background: var(--primary-dark);
+                            transform: translateY(-2px);
+                        }
+
+                        .btn-secondary {
+                            background: var(--medium-gray);
+                            color: var(--text-primary);
+                        }
+
+                        .btn-secondary:hover {
+                            background: var(--dark-gray);
+                            color: white;
+                        }
+
+                        /* Toast Notifications */
+                        .toast {
+                            position: fixed;
+                            top: 20px;
+                            right: 20px;
+                            padding: 16px 20px;
+                            border-radius: 8px;
+                            color: white;
+                            font-weight: 500;
+                            z-index: 1001;
+                            transform: translateX(100%);
+                            transition: var(--transition);
+                            max-width: 300px;
+                        }
+
+                        .toast.show {
+                            transform: translateX(0);
+                        }
+
+                        .toast.success {
+                            background: var(--success-color);
+                        }
+
+                        .toast.error {
+                            background: var(--danger-color);
+                        }
+
+                        .toast.info {
+                            background: var(--info-color);
+                        }
+
+                        /* Empty State */
+                        .empty-state {
+                            text-align: center;
+                            padding: 40px 20px;
+                            color: var(--text-secondary);
+                        }
+
+                        .empty-state-icon {
+                            font-size: 48px;
+                            margin-bottom: 15px;
+                        }
+
+                        /* Animations */
+                        @keyframes spin {
+                            0% { transform: rotate(0deg); }
+                            100% { transform: rotate(360deg); }
+                        }
+
+                        @keyframes fadeIn {
+                            from { opacity: 0; }
+                            to { opacity: 1; }
+                        }
+
+                        @keyframes slideUp {
+                            from {
+                                opacity: 0;
+                                transform: translateY(30px);
+                            }
+                            to {
+                                opacity: 1;
+                                transform: translateY(0);
+                            }
+                        }
+
+                        @keyframes fadeInUp {
+                            from {
+                                opacity: 0;
+                                transform: translateY(30px);
+                            }
+                            to {
+                                opacity: 1;
+                                transform: translateY(0);
+                            }
+                        }
+
+                        .fade-in {
+                            animation: fadeInUp 0.6s ease forwards;
+                        }
+
+                        /* Responsive Design */
+                        @media (max-width: 480px) {
+                            .container {
+                                max-width: 100%;
+                            }
+
+                            .header {
+                                padding: 15px;
+                            }
+
+                            .balance-card {
+                                margin: 15px;
+                            }
+
+                            .quick-actions {
+                                padding: 0 15px 15px;
+                            }
+
+                            .modal-content {
+                                margin: 10px;
+                            }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="container">
+                        <div class="status-bar"></div>
+
+                        <!-- Header -->
+                        <div class="header">
+                            <button class="back-btn" onclick="goBack()" aria-label="Go back">←</button>
+                            <h1 class="header-title">💰 My Wallet</h1>
+                        </div>
+
+                        <!-- Loading State -->
+                        <div class="loading" id="loading">
+                            <div class="loading-spinner"></div>
+                            <div class="loading-text">Loading your wallet...</div>
+                        </div>
+
+                        <!-- Main Content -->
+                        <div id="mainContent" style="display: none;">
+                            <!-- Balance Card -->
+                            <div class="balance-card">
+                                <div class="balance-content">
+                                    <div class="balance-label">Available Balance</div>
+                                    <div class="balance-amount" id="balanceAmount">₦0.00</div>
+                                    <div class="wallet-id">Wallet ID: <span id="walletId">Loading...</span></div>
+                                </div>
+                            </div>
+
+                            <!-- Quick Actions -->
+                            <div class="quick-actions">
+                                <div class="action-btn" onclick="openDepositModal()">
+                                    <span class="action-icon">💳</span>
+                                    <span class="action-text">Request Deposit</span>
+                                </div>
+                                <div class="action-btn" onclick="openWithdrawModal()">
+                                    <span class="action-icon">💸</span>
+                                    <span class="action-text">Request Withdrawal</span>
+                                </div>
+                            </div>
+
+                            <!-- Company Account Information -->
+                            <div class="company-info">
+                                <h3>💼 Company Payment Details</h3>
+                                <div class="account-detail">
+                                    <strong>Account Name:</strong> Moyin Adelakun
+                                </div>
+                                <div class="account-detail">
+                                    <strong>Account Number:</strong> 7085968274
+                                </div>
+                                <div class="account-detail">
+                                    <strong>Bank:</strong> Moniepoint
+                                </div>
+                                <div class="account-detail" style="font-size: 12px; color: var(--text-secondary); margin-top: 10px;">
+                                    ℹ️ Use these details for manual deposits. All transactions require admin approval.<br> from 
+                                </div>
+                            </div>
+
+                            <!-- Transaction History -->
+                            <div class="transaction-section">
+                                <h2 class="section-title">📊 Recent Transactions</h2>
+                                <div class="transaction-list" id="transactionList">
+                                    <!-- Transactions will be loaded here -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Deposit Modal -->
+                        <div class="modal" id="depositModal">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h2 class="modal-title">💳 Request Deposit</h2>
+                                    <button class="close-btn" onclick="closeModal('depositModal')">&times;</button>
+                                </div>
+                                <form id="depositForm">
+                                    <div class="form-group">
+                                        <label class="form-label">Amount (₦)</label>
+                                        <input type="number" class="form-input" id="depositAmount" placeholder="Enter amount" required min="100" step="0.01">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Payment Method</label>
+                                        <select class="form-input" id="depositMethod" required>
+                                            <option value="">Select payment method</option>
+                                            <option value="bank_transfer">Bank Transfer</option>
+                                            <option value="palmpay">PalmPay</option>
+                                            <option value="card">Debit Card</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Reference/Transaction ID (if already paid)</label>
+                                        <input type="text" class="form-input" id="depositReference" placeholder="Optional: Enter transaction reference">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Additional Notes</label>
+                                        <textarea class="form-input form-textarea" id="depositNotes" placeholder="Any additional information (optional)"></textarea>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">📤 Submit Deposit Request</button>
+                                    <button type="button" class="btn btn-secondary" onclick="closeModal('depositModal')">Cancel</button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Withdraw Modal -->
+                        <div class="modal" id="withdrawModal">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h2 class="modal-title">💸 Request Withdrawal</h2>
+                                    <button class="close-btn" onclick="closeModal('withdrawModal')">&times;</button>
+                                </div>
+                                <form id="withdrawForm">
+                                    <div class="form-group">
+                                        <label class="form-label">Amount (₦)</label>
+                                        <input type="number" class="form-input" id="withdrawAmount" placeholder="Enter amount" required min="100" step="0.01">
+                                        <div style="font-size: 12px; color: var(--text-secondary); margin-top: 5px;">
+                                            Available: ₦<span id="availableBalance">0.00</span>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Bank Name</label>
+                                        <input type="text" class="form-input" id="withdrawBank" placeholder="Enter your bank name" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Account Number</label>
+                                        <input type="text" class="form-input" id="withdrawAccount" placeholder="Enter your account number" required pattern="[0-9]{10}" maxlength="10">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Account Name</label>
+                                        <input type="text" class="form-input" id="withdrawAccountName" placeholder="Enter account holder name" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Reason for Withdrawal</label>
+                                        <textarea class="form-input form-textarea" id="withdrawReason" placeholder="Brief reason for this withdrawal request" required></textarea>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">📤 Submit Withdrawal Request</button>
+                                    <button type="button" class="btn btn-secondary" onclick="closeModal('withdrawModal')">Cancel</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <script type="module">
+                        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+                        import { 
+                            getDatabase, 
+                            ref, 
+                            get,
+                            set,
+                            push,
+                            query,
+                            orderByChild,
+                            limitToLast,
+                            onValue
+                        } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+                        import { 
+                            getAuth, 
+                            onAuthStateChanged 
+                        } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+
+                        // Firebase configuration
+                        const firebaseConfig = {
+                            apiKey: "AIzaSyCcTFYAIp1-TA1irU8l5N8iihfnYCGWrHw",
+                            authDomain: "and-facebook-ab84c.firebaseapp.com",
+                            databaseURL: "https://and-facebook-ab84c-default-rtdb.firebaseio.com",
+                            projectId: "and-facebook-ab84c",
+                            storageBucket: "and-facebook-ab84c.appspot.com",
+                            messagingSenderId: "4885749329",
+                            appId: "1:4885749329:web:2d5b0e46519b5dc4c8e270"
+                        };
+
+                        // Initialize Firebase
+                        const app = initializeApp(firebaseConfig);
+                        const db = getDatabase(app);
+                        const auth = getAuth(app);
+
+                        // Global variables
+                        let currentUser = null;
+                        let walletData = {};
+                        let userTransactions = [];
+
+                        // DOM elements
+                        const loading = document.getElementById('loading');
+                        const mainContent = document.getElementById('mainContent');
+                        const balanceAmount = document.getElementById('balanceAmount');
+                        const walletId = document.getElementById('walletId');
+                        const transactionList = document.getElementById('transactionList');
+
+                        // Utility Functions
+                        function showToast(message, type = 'success') {
+                            const toast = document.createElement('div');
+                            toast.className = `toast ${type}`;
+                            toast.textContent = message;
+                            document.body.appendChild(toast);
+
+                            setTimeout(() => toast.classList.add('show'), 100);
+                            setTimeout(() => {
+                                toast.classList.remove('show');
+                                setTimeout(() => document.body.removeChild(toast), 300);
+                            }, 4000);
+                        }
+
+                        function formatCurrency(amount) {
+                            return new Intl.NumberFormat('en-NG', {
+                                style: 'currency',
+                                currency: 'NGN'
+                            }).format(amount);
+                        }
+
+                        function formatDate(timestamp) {
+                            return new Date(timestamp).toLocaleDateString('en-NG', {
+                                day: 'numeric',
+                                month: 'short',
+                                year: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                            });
+                        }
+
+                        function generateTransactionId() {
+                            return 'TXN' + Date.now() + Math.random().toString(36).substr(2, 5).toUpperCase();
+                        }
+
+                        // Navigation
+                        window.goBack = function() {
+                            window.location.href = 'index.html'; // Adjust as needed
+                        };
+
+                        // Modal Functions
+                        window.openDepositModal = function() {
+                            document.getElementById('depositModal').classList.add('show');
+                        };
+
+                        window.openWithdrawModal = function() {
+                            document.getElementById('availableBalance').textContent = (walletData.balance || 0).toFixed(2);
+                            document.getElementById('withdrawModal').classList.add('show');
+                        };
+
+                        window.closeModal = function(modalId) {
+                            document.getElementById(modalId).classList.remove('show');
+                        };
+
+                        // Initialize wallet for new users
+                        async function initializeWallet(userId) {
+                            const walletRef = ref(db, `wallets/${userId}`);
+                            const walletSnapshot = await get(walletRef);
+
+                            if (!walletSnapshot.exists()) {
+                                const newWallet = {
+                                    balance: 0,
+                                    walletId: 'WLT' + userId.substr(-8).toUpperCase(),
+                                    createdAt: Date.now(),
+                                    totalDeposits: 0,
+                                    totalWithdrawals: 0,
+                                    pendingDeposits: 0,
+                                    pendingWithdrawals: 0
+                                };
+                                await set(walletRef, newWallet);
+                                return newWallet;
+                            }
+
+                            return walletSnapshot.val();
+                        }
+
+                        // Load wallet data
+                        async function loadWalletData(userId) {
+                            try {
+                                walletData = await initializeWallet(userId);
+
+                                // Update UI
+                                balanceAmount.textContent = formatCurrency(walletData.balance || 0);
+                                walletId.textContent = walletData.walletId || 'Loading...';
+
+                                // Load transactions
+                                await loadTransactions(userId);
+
+                            } catch (error) {
+                                console.error('Error loading wallet data:', error);
+                                showToast('Error loading wallet data', 'error');
+                            }
+                        }
+
+                        // Load user transactions
+                        async function loadTransactions(userId) {
+                            try {
+                                const transactionsRef = query(
+                                    ref(db, `transactions/${userId}`),
+                                    orderByChild('timestamp'),
+                                    limitToLast(20)
+                                );
+
+                                const snapshot = await get(transactionsRef);
+                                userTransactions = [];
+
+                                if (snapshot.exists()) {
+                                    snapshot.forEach(child => {
+                                        userTransactions.unshift({
+                                            id: child.key,
+                                            ...child.val()
+                                        });
+                                    });
+                                }
+
+                                renderTransactions();
+
+                            } catch (error) {
+                                console.error('Error loading transactions:', error);
+                                showToast('Error loading transaction history', 'error');
+                            }
+                        }
+
+                        // Render transactions
+                        function renderTransactions() {
+                            if (userTransactions.length === 0) {
+                                transactionList.innerHTML = `
+                                    <div class="empty-state">
+                                        <div class="empty-state-icon">📊</div>
+                                        <div>No transactions yet</div>
+                                        <div style="font-size: 14px; margin-top: 5px;">Your transaction history will appear here</div>
+                                    </div>
+                                `;
+                                return;
+                            }
+
+                            transactionList.innerHTML = userTransactions.map(transaction => {
+                                const isDeposit = transaction.type === 'deposit';
+                                const iconClass = transaction.status === 'pending' ? 'pending' : (isDeposit ? 'deposit' : 'withdrawal');
+                                const icon = transaction.status === 'pending' ? '⏳' : (isDeposit ? '⬇️' : '⬆️');
+                                const amountClass = transaction.status === 'pending' ? 'pending' : (isDeposit ? 'positive' : 'negative');
+                                const amountSign = isDeposit ? '+' : '-';
+
+                                let statusBadge = '';
+                                if (transaction.status === 'pending') {
+                                    statusBadge = '<span class="transaction-status status-pending">Pending Approval</span>';
+                                } else if (transaction.status === 'approved') {
+                                    statusBadge = '<span class="transaction-status status-approved">Approved</span>';
+                                } else if (transaction.status === 'rejected') {
+                                    statusBadge = '<span class="transaction-status status-rejected">Rejected</span>';
+                                }
+
+                                return `
+                                    <div class="transaction-item">
+                                        <div class="transaction-icon ${iconClass}">
+                                            ${icon}
+                                        </div>
+                                        <div class="transaction-details">
+                                            <div class="transaction-type">
+                                                ${transaction.type === 'deposit' ? 'Deposit Request' : 'Withdrawal Request'}
+                                                ${statusBadge}
+                                            </div>
+                                            <div class="transaction-date">${formatDate(transaction.timestamp)}</div>
+                                            ${transaction.reference ? `<div class="transaction-date">Ref: ${transaction.reference}</div>` : ''}
+                                        </div>
+                                        <div class="transaction-amount ${amountClass}">
+                                            ${amountSign}${formatCurrency(transaction.amount)}
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('');
+                        }
+
+                        // Handle deposit form submission
+                        document.getElementById('depositForm').addEventListener('submit', async function(e) {
+                            e.preventDefault();
+
+                            const amount = parseFloat(document.getElementById('depositAmount').value);
+                            const method = document.getElementById('depositMethod').value;
+                            const reference = document.getElementById('depositReference').value.trim();
+                            const notes = document.getElementById('depositNotes').value.trim();
+
+                            if (amount < 100) {
+                                showToast('Minimum deposit amount is ₦100', 'error');
+                                return;
+                            }
+
+                            try {
+                                const transactionId = generateTransactionId();
+                                const transactionData = {
+                                    id: transactionId,
+                                    type: 'deposit',
+                                    amount: amount,
+                                    method: method,
+                                    reference: reference || null,
+                                    notes: notes || null,
+                                    status: 'pending',
+                                    timestamp: Date.now(),
+                                    userId: currentUser.uid,
+                                    userEmail: currentUser.email,
+                                    userName: currentUser.displayName || 'Unknown User'
+                                };
+
+                                // Save transaction to user's transactions
+                                const userTransactionRef = ref(db, `transactions/${currentUser.uid}/${transactionId}`);
+                                await set(userTransactionRef, transactionData);
+
+                                // Save transaction to admin requests queue
+                                const adminRequestRef = ref(db, `admin/transaction_requests/${transactionId}`);
+                                await set(adminRequestRef, {
+                                    ...transactionData,
+                                    requestedAt: Date.now()
+                                });
+
+                                // Update wallet pending deposits
+                                const walletRef = ref(db, `wallets/${currentUser.uid}/pendingDeposits`);
+                                await set(walletRef, (walletData.pendingDeposits || 0) + amount);
+
+                                // Update local data
+                                walletData.pendingDeposits = (walletData.pendingDeposits || 0) + amount;
+                                userTransactions.unshift(transactionData);
+                                renderTransactions();
+
+                                // Close modal and reset form
+                                closeModal('depositModal');
+                                document.getElementById('depositForm').reset();
+
+                                showToast('Deposit request submitted successfully! You will be notified once approved.', 'success');
+
+                            } catch (error) {
+                                console.error('Error submitting deposit request:', error);
+                                showToast('Error submitting deposit request. Please try again.', 'error');
+                            }
+                        });
+
+                        // Handle withdrawal form submission
+                        document.getElementById('withdrawForm').addEventListener('submit', async function(e) {
+                            e.preventDefault();
+
+                            const amount = parseFloat(document.getElementById('withdrawAmount').value);
+                            const bank = document.getElementById('withdrawBank').value.trim();
+                            const accountNumber = document.getElementById('withdrawAccount').value.trim();
+                            const accountName = document.getElementById('withdrawAccountName').value.trim();
+                            const reason = document.getElementById('withdrawReason').value.trim();
+
+                            if (amount < 100) {
+                                showToast('Minimum withdrawal amount is ₦100', 'error');
+                                return;
+                            }
+
+                            if (amount > (walletData.balance || 0)) {
+                                showToast('Insufficient balance for this withdrawal', 'error');
+                                return;
+                            }
+
+                            if (!/^[0-9]{10}$/.test(accountNumber)) {
+                                showToast('Please enter a valid 10-digit account number', 'error');
+                                return;
+                            }
+
+                            try {
+                                const transactionId = generateTransactionId();
+                                const transactionData = {
+                                    id: transactionId,
+                                    type: 'withdrawal',
+                                    amount: amount,
+                                    bankDetails: {
+                                        bankName: bank,
+                                        accountNumber: accountNumber,
+                                        accountName: accountName
+                                    },
+                                    reason: reason,
+                                    status: 'pending',
+                                    timestamp: Date.now(),
+                                    userId: currentUser.uid,
+                                    userEmail: currentUser.email,
+                                    userName: currentUser.displayName || 'Unknown User'
+                                };
+
+                                // Save transaction to user's transactions
+                                const userTransactionRef = ref(db, `transactions/${currentUser.uid}/${transactionId}`);
+                                await set(userTransactionRef, transactionData);
+
+                                // Save transaction to admin requests queue
+                                const adminRequestRef = ref(db, `admin/transaction_requests/${transactionId}`);
+                                await set(adminRequestRef, {
+                                    ...transactionData,
+                                    requestedAt: Date.now()
+                                });
+
+                                // Update wallet pending withdrawals
+                                const walletRef = ref(db, `wallets/${currentUser.uid}/pendingWithdrawals`);
+                                await set(walletRef, (walletData.pendingWithdrawals || 0) + amount);
+
+                                // Update local data
+                                walletData.pendingWithdrawals = (walletData.pendingWithdrawals || 0) + amount;
+                                userTransactions.unshift(transactionData);
+                                renderTransactions();
+
+                                // Close modal and reset form
+                                closeModal('withdrawModal');
+                                document.getElementById('withdrawForm').reset();
+
+                                showToast('Withdrawal request submitted successfully! You will be notified once processed.', 'success');
+
+                            } catch (error) {
+                                console.error('Error submitting withdrawal request:', error);
+                                showToast('Error submitting withdrawal request. Please try again.', 'error');
+                            }
+                        });
+
+                        // Listen for real-time transaction updates
+                        function setupTransactionListener(userId) {
+                            const transactionsRef = ref(db, `transactions/${userId}`);
+                            onValue(transactionsRef, (snapshot) => {
+                                if (snapshot.exists()) {
+                                    userTransactions = [];
+                                    snapshot.forEach(child => {
+                                        userTransactions.unshift({
+                                            id: child.key,
+                                            ...child.val()
+                                        });
+                                    });
+                                    // Sort by timestamp (newest first)
+                                    userTransactions.sort((a, b) => b.timestamp - a.timestamp);
+                                    // Keep only last 20 transactions for display
+                                    userTransactions = userTransactions.slice(0, 20);
+                                    renderTransactions();
+                                }
+                            });
+                        }
+
+                        // Listen for real-time wallet updates
+                        function setupWalletListener(userId) {
+                            const walletRef = ref(db, `wallets/${userId}`);
+                            onValue(walletRef, (snapshot) => {
+                                if (snapshot.exists()) {
+                                    walletData = snapshot.val();
+                                    balanceAmount.textContent = formatCurrency(walletData.balance || 0);
+                                    walletId.textContent = walletData.walletId || 'Loading...';
+                                }
+                            });
+                        }
+
+                        // Close modals when clicking outside
+                        document.addEventListener('click', function(e) {
+                            if (e.target.classList.contains('modal')) {
+                                e.target.classList.remove('show');
+                            }
+                        });
+
+                        // Close modals with Escape key
+                        document.addEventListener('keydown', function(e) {
+                            if (e.key === 'Escape') {
+                                const openModal = document.querySelector('.modal.show');
+                                if (openModal) {
+                                    openModal.classList.remove('show');
+                                }
+                            }
+                        });
+
+                        // Form validation helpers
+                        document.getElementById('depositAmount').addEventListener('input', function(e) {
+                            const value = parseFloat(e.target.value);
+                            if (value < 100 && value > 0) {
+                                e.target.style.borderColor = 'var(--warning-color)';
+                            } else {
+                                e.target.style.borderColor = 'var(--medium-gray)';
+                            }
+                        });
+
+                        document.getElementById('withdrawAmount').addEventListener('input', function(e) {
+                            const value = parseFloat(e.target.value);
+                            const available = walletData.balance || 0;
+
+                            if (value > available) {
+                                e.target.style.borderColor = 'var(--danger-color)';
+                                showToast('Amount exceeds available balance', 'error');
+                            } else if (value < 100 && value > 0) {
+                                e.target.style.borderColor = 'var(--warning-color)';
+                            } else {
+                                e.target.style.borderColor = 'var(--medium-gray)';
+                            }
+                        });
+
+                        document.getElementById('withdrawAccount').addEventListener('input', function(e) {
+                            const value = e.target.value;
+                            if (value.length === 10 && /^[0-9]+$/.test(value)) {
+                                e.target.style.borderColor = 'var(--success-color)';
+                            } else if (value.length > 0) {
+                                e.target.style.borderColor = 'var(--warning-color)';
+                            } else {
+                                e.target.style.borderColor = 'var(--medium-gray)';
+                            }
+                        });
+
+                        // Initialize Application
+                        onAuthStateChanged(auth, async (user) => {
+                            if (user) {
+                                currentUser = user;
+
+                                try {
+                                    // Load wallet data
+                                    await loadWalletData(user.uid);
+
+                                    // Setup real-time listeners
+                                    setupWalletListener(user.uid);
+                                    setupTransactionListener(user.uid);
+
+                                    // Show main content with fade-in animation
+                                    loading.style.display = 'none';
+                                    mainContent.style.display = 'block';
+                                    mainContent.classList.add('fade-in');
+
+                                } catch (error) {
+                                    console.error('Error initializing wallet:', error);
+                                    loading.innerHTML = `
+                                        <div class="loading-spinner"></div>
+                                        <div class="loading-text">Error loading wallet. Please refresh the page.</div>
+                                    `;
+                                    showToast('Error loading wallet data', 'error');
+                                }
+                            } else {
+                                // User not authenticated - redirect to login
+                                window.location.href = 'index.html';
+                            }
+                        });
+
+                        // Handle page visibility change to refresh data if needed
+                        document.addEventListener('visibilitychange', () => {
+                            if (!document.hidden && currentUser) {
+                                loadWalletData(currentUser.uid);
+                            }
+                        });
+
+                        // Prevent form submission on Enter key in inputs (except textareas)
+                        document.addEventListener('keydown', (e) => {
+                            if (e.key === 'Enter' && e.target.matches('input:not([type="submit"])')) {
+                                e.preventDefault();
+                            }
+                        });
+
+                        // Auto-format currency inputs
+                        function formatCurrencyInput(input) {
+                            let value = input.value.replace(/[^\d.]/g, '');
+                            let parts = value.split('.');
+                            if (parts.length > 2) {
+                                value = parts[0] + '.' + parts.slice(1).join('');
+                            }
+                            if (parts[1] && parts[1].length > 2) {
+                                value = parts[0] + '.' + parts[1].substring(0, 2);
+                            }
+                            input.value = value;
+                        }
+
+                        document.getElementById('depositAmount').addEventListener('input', function(e) {
+                            formatCurrencyInput(e.target);
+                        });
+
+                        document.getElementById('withdrawAmount').addEventListener('input', function(e) {
+                            formatCurrencyInput(e.target);
+                        });
+
+                        // Add notification for transaction status updates
+                        function checkForTransactionUpdates() {
+                            // This would typically use Firebase Cloud Messaging or similar
+                            // For now, we'll just show a general notification about checking admin approval
+                            setTimeout(() => {
+                                const hasPendingTransactions = userTransactions.some(t => t.status === 'pending');
+                                if (hasPendingTransactions) {
+                                    showToast('You have pending transactions awaiting admin approval', 'info');
+                                }
+                            }, 5000);
+                        }
+
+                        // Initialize notification check after user data loads
+                        setTimeout(checkForTransactionUpdates, 3000);
+
+                        console.log('✅ Wallet system loaded successfully');
+                    </script>
+                </body>
+                </html>

@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Support Chat - Time-line App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        color: #333;
+    }
+
+    .container {
+        max-width: 400px;
+        margin: 0 auto;
+        background: white;
+        min-height: 100vh;
+        box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* Header */
+    .header {
+        background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+        color: white;
+        padding: 15px 20px;
+        position: relative;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        flex-shrink: 0;
+    }
+
+    .back-btn {
+        position: absolute;
+        left: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: white;
+        font-size: 20px;
+        cursor: pointer;
+        padding: 5px;
+        border-radius: 50%;
+        transition: background 0.3s ease;
+    }
+
+    .back-btn:hover {
+        background: rgba(255,255,255,0.2);
+    }
+
+    .header-content {
+        text-align: center;
+    }
+
+    .header h1 {
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 4px;
+    }
+
+    .header-status {
+        font-size: 12px;
+        opacity: 0.9;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+    }
+
+    .status-dot {
+        width: 8px;
+        height: 8px;
+        background: #28a745;
+        border-radius: 50%;
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0% { opacity: 1; }
+        50% { opacity: 0.5; }
+        100% { opacity: 1; }
+    }
+
+    /* Auth Section */
+    .auth-section {
+        padding: 40px 20px;
+        text-align: center;
+        flex: 1;
+        display: flex;  
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .auth-icon {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+        color: white;
+        font-size: 32px;
+    }
+
+    .auth-title {
+        font-size: 24px;
+        font-weight: 600;
+        color: #4a90e2;
+        margin-bottom: 10px;
+    }
+
+    .auth-subtitle {
+        font-size: 14px;
+        color: #666;
+        margin-bottom: 30px;
+        line-height: 1.5;
+    }
+
+    .auth-form {
+        max-width: 300px;
+        margin: 0 auto;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+        text-align: left;
+    }
+
+    .form-label {
+        display: block;
+        font-size: 14px;
+        font-weight: 500;
+        color: #333;
+        margin-bottom: 8px;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 12px 16px;
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        font-size: 14px;
+        transition: border-color 0.3s ease;
+    }
+
+    .form-input:focus {
+        outline: none;
+        border-color: #4a90e2;
+    }
+
+    .login-btn {
+        width: 100%;
+        background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 14px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .login-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(74, 144, 226, 0.3);
+    }
+
+    .login-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    /* Chat Interface */
+    .chat-interface {
+        display: none;
+        flex: 1;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    .chat-header {
+        background: #f8f9fa;
+        padding: 15px 20px;
+        border-bottom: 1px solid #e9ecef;
+        flex-shrink: 0;
+    }
+
+    .chat-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 5px;
+    }
+
+    .chat-subtitle {
+        font-size: 12px;
+        color: #666;
+    }
+
+    /* Messages */
+    .chat-messages {
+        flex: 1;
+        overflow-y: auto;
+        padding: 20px;
+        background: #f8f9fa;
+    }
+
+    .message {
+        margin-bottom: 15px;
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .message.customer {
+        flex-direction: row;
+    }
+
+    .message.support {
+        flex-direction: row-reverse;
+    }
+
+    .message-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 12px;
+        font-weight: 600;
+        flex-shrink: 0;
+    }
+
+    .message.customer .message-avatar {
+        background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+    }
+
+    .message.support .message-avatar {
+        background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+    }
+
+    .message-content {
+        background: white;
+        padding: 12px 16px;
+        border-radius: 16px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        max-width: 250px;
+        position: relative;
+    }
+
+    .message.support .message-content {
+        background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+        color: white;
+    }
+
+    .message-text {
+        font-size: 14px;
+        line-height: 1.4;
+        margin-bottom: 4px;
+    }
+
+    .message-time {
+        font-size: 11px;
+        opacity: 0.7;
+    }
+
+    /* Input Section */
+    .input-section {
+        background: white;
+        padding: 15px 20px;
+        border-top: 1px solid #e9ecef;
+        display: flex;
+        gap: 10px;
+        align-items: flex-end;
+    }
+
+    .message-input {
+        flex: 1;
+        border: 2px solid #e9ecef;
+        border-radius: 20px;
+        padding: 10px 15px;
+        font-size: 14px;
+        resize: none;
+        min-height: 40px;
+        max-height: 100px;
+        transition: border-color 0.3s ease;
+    }
+
+    .message-input:focus {
+        outline: none;
+        border-color: #4a90e2;
+    }
+
+    .send-btn {
+        background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        flex-shrink: 0;
+    }
+
+    .send-btn:hover {
+        transform: scale(1.05);
+        box-shadow: 0 2px 8px rgba(74, 144, 226, 0.3);
+    }
+
+    .send-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    /* Empty State */
+    .empty-state {
+        padding: 40px 20px;
+        text-align: center;
+        color: #666;
+    }
+
+    .empty-icon {
+        font-size: 48px;
+        margin-bottom: 16px;
+        opacity: 0.5;
+    }
+
+    .empty-text {
+        font-size: 16px;
+        line-height: 1.5;
+    }
+
+    /* Status Bar */
+    .status-bar {
+        background: linear-gradient(90deg, #4a90e2 0%, #357abd 100%);
+        height: 4px;
+    }
+
+    /* Responsive */
+    @media (max-width: 480px) {
+        .container {
+            max-width: 100%;
+        }
+    }
+
+    .error-message {
+        background: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+        padding: 10px;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        text-align: center;
+    }
+</style>
+
+</head>
+<body>
+    <div class="container">
+        <div class="status-bar"></div>
+
+    <header class="header">
+        <button class="back-btn" onclick="goBack()">←</button>
+        <div class="header-content">
+            <h1 id="headerTitle">Customer Support</h1>
+            <div class="header-status">
+                <span class="status-dot"></span>
+                <span id="connectionStatus">Connecting...</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Authentication Section -->
+    <div class="auth-section" id="authSection">
+        <div class="auth-icon">🎧</div>
+        <h2 class="auth-title">Customer Support</h2>
+        <p class="auth-subtitle">Please sign in to start a support chat session</p>
+
+        <div id="errorMessage" class="error-message" style="display: none;"></div>
+
+        <form class="auth-form" onsubmit="handleLogin(event)">
+            <div class="form-group">
+                <label class="form-label" for="email">Email Address</label>
+                <input type="email" id="email" class="form-input" placeholder="Enter your email" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="password">Password</label>
+                <input type="password" id="password" class="form-input" placeholder="Enter your password" required>
+            </div>
+            <button type="submit" class="login-btn" id="loginBtn">
+                Start Support Chat
+            </button>
+        </form>
+    </div>
+
+    <!-- Chat Interface -->
+    <div class="chat-interface" id="chatInterface">
+        <div class="chat-header">
+            <div class="chat-title" id="chatTitle">Support Chat</div>
+            <div class="chat-subtitle" id="chatSubtitle">Connected with customer support</div>
+        </div>
+
+        <div class="chat-messages" id="chatMessages">
+            <div class="empty-state">
+                <div class="empty-icon">💬</div>
+                <div class="empty-text">Welcome! How can we help you today?</div>
+            </div>
+        </div>
+
+        <div class="input-section">
+            <textarea class="message-input" id="messageInput" placeholder="Type your message..." rows="1"></textarea>
+            <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+                ➤
+            </button>
+        </div>
+    </div>
+</div>
+
+    <script type="module">
+      // Firebase Imports
+      import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+      import {
+        getAuth,
+        signInWithEmailAndPassword,
+        onAuthStateChanged
+      } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+      import {
+        getFirestore,
+        collection,
+        addDoc,
+        query,
+        orderBy,
+        onSnapshot,
+        doc,
+        updateDoc,
+        serverTimestamp,
+        where,
+        setDoc
+      } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+      // Firebase Configuration
+      const firebaseConfig = {
+        apiKey: "AIzaSyCcTFYAIp1-TA1irU8l5N8iihfnYCGWrHw",
+        authDomain: "and-facebook-ab84c.firebaseapp.com",
+        projectId: "and-facebook-ab84c",
+        storageBucket: "and-facebook-ab84c.appspot.com",
+        messagingSenderId: "4885749329",
+        appId: "1:4885749329:web:2d5b0e46519b5dc4c8e270"
+      };
+
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+      const db = getFirestore(app);
+
+      // DOM Elements
+      const $ = id => document.getElementById(id);
+      const authSection = $('authSection');
+      const chatInterface = $('chatInterface');
+      const connectionStatus = $('connectionStatus');
+      const headerTitle = $('headerTitle');
+      const chatTitle = $('chatTitle');
+      const chatSubtitle = $('chatSubtitle');
+      const chatMessages = $('chatMessages');
+      const messageInput = $('messageInput');
+      const errorMessage = $('errorMessage');
+
+      // State
+      let currentUser = null;
+      let chatId = null;
+      let isCustomerSupport = false;
+
+      // Event Handlers
+      window.handleLogin = async (e) => {
+        e.preventDefault();
+        const email = $('email').value;
+        const password = $('password').value;
+        const loginBtn = $('loginBtn');
+        loginBtn.disabled = true;
+        loginBtn.textContent = 'Connecting...';
+        hideError();
+
+        try {
+          await signInWithEmailAndPassword(auth, email, password);
+        } catch (err) {
+          console.error('Login failed:', err);
+          showError('Login failed. Please check your credentials and try again.');
+          loginBtn.disabled = false;
+          loginBtn.textContent = 'Start Support Chat';
+        }
+      };
+
+      // Auth State Listener
+      onAuthStateChanged(auth, async (user) => {
+        if (user) {
+          currentUser = user;
+          isCustomerSupport = user.email === 'moyinadelakun2025@gmail.com';
+          console.log('Logged in:', user.email, 'isSupport:', isCustomerSupport);
+
+          if (isCustomerSupport) {
+            headerTitle.textContent = 'Support Dashboard';
+            chatTitle.textContent = 'Customer Support Dashboard';
+            chatSubtitle.textContent = 'Ready to help customers';
+            showSupportView();
+          } else {
+            headerTitle.textContent = 'Customer Support';
+            chatTitle.textContent = 'Support Chat';
+            chatSubtitle.textContent = 'Connected with customer support';
+            await initializeCustomerChat();
+            showCustomerView();
+          }
+
+          connectionStatus.textContent = 'Connected';
+        } else {
+          currentUser = null;
+          showAuth();
+          connectionStatus.textContent = 'Disconnected';
+        }
+      });
+
+      // Initialize Chat for Customer
+      async function initializeCustomerChat() {
+        try {
+          chatId = `chat_${currentUser.uid}_${Date.now()}`;
+          const chatData = {
+            customerId: currentUser.uid,
+            customerEmail: currentUser.email,
+            customerName: currentUser.displayName || currentUser.email.split('@')[0],
+            supportId: null,
+            supportEmail: 'moyinadelakun2025@gmail.com',
+            supportName: 'Customer Support',
+            status: 'active',
+            lastMessage: 'New chat session started',
+            lastMessageSender: 'system',
+            lastMessageType: 'system',
+            unreadBySupport: 1,
+            unreadByCustomer: 0,
+            createdAt: serverTimestamp(),
+            lastMessageTime: serverTimestamp(),
+            updatedAt: serverTimestamp()
+          };
+
+          await setDoc(doc(db, 'supportChats', chatId), chatData);
+
+          await addDoc(collection(db, 'chatMessages'), {
+            chatId,
+            senderId: 'system',
+            senderName: 'System',
+            senderEmail: 'system@timeline.com',
+            text: 'Welcome to Time-line Customer Support! How can we help you today?',
+            timestamp: serverTimestamp(),
+            type: 'system',
+            read: false,
+            createdAt: new Date().toISOString()
+          });
+
+          loadMessages();
+          connectionStatus.textContent = 'Connected to Support';
+
+        } catch (error) {
+          console.error(error);
+          showError('Failed to initialize chat: ' + (error.message || 'Please refresh and try again.'));
+          connectionStatus.textContent = 'Connection Failed';
+        }
+      }
+
+      // Support Dashboard: Load All Chats
+      function loadSupportChats() {
+        chatMessages.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-text">Loading support requests...</div></div>`;
+        const q = query(collection(db, 'supportChats'), orderBy('lastMessageTime', 'desc'));
+
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+          const chats = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+          renderSupportChats(chats);
+        }, (err) => {
+          console.error(err);
+          chatMessages.innerHTML = `<div class="empty-state"><div class="empty-icon">❌</div><div class="empty-text">Failed to load chats</div></div>`;
+        });
+
+        window.supportChatsUnsubscribe = unsubscribe;
+      }
+
+      function renderSupportChats(chats) {
+        if (!chats.length) {
+          chatMessages.innerHTML = `<div class="empty-state"><div class="empty-icon">💬</div><div class="empty-text">No chats right now</div></div>`;
+          return;
+        }
+
+        chatMessages.innerHTML = chats.map(chat => {
+          const timeAgo = chat.lastMessageTime?.toDate ? formatTimeAgo(chat.lastMessageTime.toDate()) : 'Just now';
+          return `
+            <div class="message customer" onclick="openCustomerChat('${chat.id}')">
+              <div class="message-avatar">${chat.customerName.charAt(0).toUpperCase()}</div>
+              <div class="message-content">
+                <div class="message-text"><strong>${chat.customerName}</strong><br><small>${chat.customerEmail}</small><br>${chat.lastMessage}</div>
+                <div class="message-time">${timeAgo}</div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      window.openCustomerChat = (selectedChatId) => {
+        chatId = selectedChatId;
+        chatTitle.textContent = 'Responding to Customer';
+        chatSubtitle.textContent = 'Individual support session';
+        loadMessages();
+      };
+
+      function loadMessages() {
+        if (!chatId) return;
+
+        const q = query(
+          collection(db, 'chatMessages'),
+          where('chatId', '==', chatId),
+          orderBy('timestamp', 'asc')
+        );
+
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+          const messages = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+          renderMessages(messages);
+        }, (err) => {
+          console.error(err);
+          showError('Failed to load messages');
+        });
+
+        window.messagesUnsubscribe = unsubscribe;
+      }
+
+      function renderMessages(messages) {
+        if (!messages.length) {
+          chatMessages.innerHTML = `<div class="empty-state"><div class="empty-icon">💭</div><div class="empty-text">Start your conversation...</div></div>`;
+          return;
+        }
+
+        chatMessages.innerHTML = messages.map(msg => {
+          const isSystem = msg.type === 'system';
+          const isMe = msg.senderId === currentUser.uid;
+          const msgClass = isMe ? 'support' : 'customer';
+          const timeStr = msg.timestamp?.toDate ? formatTime(msg.timestamp.toDate()) : 'Now';
+
+          return isSystem
+            ? `<div class="message" style="justify-content:center;"><div class="message-content" style="background:#eee;text-align:center;"><div class="message-text">${msg.text}</div></div></div>`
+            : `<div class="message ${msgClass}"><div class="message-avatar">${getInitials(msg.senderName)}</div><div class="message-content"><div class="message-text">${msg.text}</div><div class="message-time">${timeStr}</div></div></div>`;
+        }).join('');
+
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }
+
+      window.sendMessage = async () => {
+        const text = messageInput.value.trim();
+        const sendBtn = $('sendBtn');
+
+        if (!text || !chatId || !currentUser) return showError('Please complete all message fields');
+
+        sendBtn.disabled = true;
+        sendBtn.innerHTML = '⏳';
+        messageInput.disabled = true;
+
+        try {
+          hideError();
+          const messageData = {
+            chatId,
+            senderId: currentUser.uid,
+            senderName: isCustomerSupport ? 'Customer Support' : currentUser.displayName || currentUser.email.split('@')[0],
+            senderEmail: currentUser.email,
+            text,
+            timestamp: serverTimestamp(),
+            type: isCustomerSupport ? 'support' : 'customer',
+            read: false,
+            createdAt: new Date().toISOString()
+          };
+
+          await addDoc(collection(db, 'chatMessages'), messageData);
+          await updateDoc(doc(db, 'supportChats', chatId), {
+            lastMessage: text,
+            lastMessageTime: serverTimestamp(),
+            lastMessageSender: currentUser.uid,
+            lastMessageType: messageData.type,
+            updatedAt: serverTimestamp(),
+            supportId: isCustomerSupport ? currentUser.uid : null,
+            unreadBySupport: isCustomerSupport ? 0 : 1,
+            unreadByCustomer: isCustomerSupport ? 1 : 0
+          });
+
+          messageInput.value = '';
+          sendBtn.innerHTML = '✓';
+          setTimeout(() => sendBtn.innerHTML = 'Send', 1000);
+        } catch (err) {
+          console.error(err);
+          showError('Message failed: ' + (err.message || 'Please try again'));
+          sendBtn.innerHTML = 'Send';
+        } finally {
+          sendBtn.disabled = false;
+          messageInput.disabled = false;
+          messageInput.focus();
+        }
+      };
+
+      messageInput.addEventListener('input', () => {
+        messageInput.style.height = '40px';
+        messageInput.style.height = Math.min(messageInput.scrollHeight, 100) + 'px';
+      });
+
+      messageInput.addEventListener('keydown', e => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          sendMessage();
+        }
+      });
+
+      // Helper UI Functions
+      function showSupportView() {
+        authSection.style.display = 'none';
+        chatInterface.style.display = 'flex';
+        loadSupportChats();
+      }
+
+      function showCustomerView() {
+        authSection.style.display = 'none';
+        chatInterface.style.display = 'flex';
+      }
+
+      function showAuth() {
+        authSection.style.display = 'flex';
+        chatInterface.style.display = 'none';
+      }
+
+      function showError(msg) {
+        errorMessage.textContent = msg;
+        errorMessage.style.display = 'block';
+      }
+
+      function hideError() {
+        errorMessage.style.display = 'none';
+      }
+
+      function getInitials(name) {
+        return name?.split(' ').map(p => p[0]).join('').toUpperCase() || 'U';
+      }
+
+      function formatTimeAgo(date) {
+        const now = new Date();
+        const mins = Math.floor((now - date) / 60000);
+        if (mins < 1) return 'Just now';
+        if (mins < 60) return `${mins}m ago`;
+        const hrs = Math.floor(mins / 60);
+        if (hrs < 24) return `${hrs}h ago`;
+        const days = Math.floor(hrs / 24);
+        return days < 7 ? `${days}d ago` : date.toLocaleDateString();
+      }
+
+      function formatTime(date) {
+        return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      }
+
+      window.goBack = () => {
+        if (isCustomerSupport && chatId) {
+          chatId = null;
+          chatTitle.textContent = 'Customer Support Dashboard';
+          chatSubtitle.textContent = 'Ready to help customers';
+          loadSupportChats();
+        } else {
+          window.history.length > 1 ? window.history.back() : alert('Returning...');
+        }
+      };
+
+      connectionStatus.textContent = 'Connecting...';
+    </script>
+</body>
+</html>
